@@ -20,7 +20,7 @@ $(BIN_DIR):
 	@echo Creating $(BIN_DIR) directory
 	@mkdir -p $(BIN_DIR)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/%.h
 	@echo Compiling $<
 	@g++ $< -o $@ -c $(LIB) $(PARAMETERS)
 

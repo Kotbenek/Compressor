@@ -1,10 +1,13 @@
 #include "Huffman.h"
+
 #include "Node.h"
 #include "Sort.h"
+#include "HuffmanCodebook.h"
 
+#include <string>
 #include <iostream>
-
 #include <queue>
+#include <bitset>
 
 using namespace std;
 
@@ -73,6 +76,9 @@ void Huffman::construct_tree()
 
 void Huffman::create_codebook()
 {
+	//Initialize codebook
+	codebook = new HuffmanCodebook(leaf_nodes);
+	
 	//For every byte to encode
 	for (int i = 0; i < leaf_nodes; i++)
 	{
@@ -102,11 +108,25 @@ void Huffman::create_codebook()
 			
 		} while(n->parent != NULL);
 		
+		//Store the codeword in the codebook
+		codebook->codes[i] = 0;
+		for (int j = 31, k = 0; j > 31 - codeword_length; j--)
+		{
+			codebook->codes[i] |= (((codeword & (1 << j)) >> j) << k++);
+		}
+		codebook->codes_length[i] = codeword_length;
+		codebook->codes_value[i] = nodes[i]->id;		
+		
 		//Debug: print codebook
 		cout << (char)nodes[i]->id << " ";
-		for (int i = 32 - codeword_length; i < 32 ; i++)
+		for (int j = 32 - codeword_length; j < 32; j++)
 		{
-			cout << ((codeword & (1 << i)) >> i);
+			cout << ((codeword & (1 << j)) >> j);
+		}
+		cout << " ";
+		for (int j = codeword_length - 1; j >= 0; j--)
+		{
+			cout << bitset<32>(codebook->codes[i])[j];
 		}
 		cout << "\r\n";
 	}
@@ -121,10 +141,12 @@ Huffman::Huffman()
 	}
 	this->leaf_nodes = 0;
 	this->tree = NULL;
+	this->codebook = NULL;
 }
 
 Huffman::~Huffman()
 {
 	tree->~Node();
 	delete[] nodes;
+	delete codebook;
 }

@@ -1,7 +1,9 @@
 #pragma once
-#include <string>
 
 #include "Node.h"
+#include "HuffmanCodebook.h"
+
+#include <string>
 
 using namespace std;
 
@@ -11,6 +13,8 @@ public:
 	Node** nodes;
 	Node* tree;
 	int leaf_nodes;
+	
+	HuffmanCodebook* codebook;
 	
 	void count_occurences(string s);
 	void sort_nodes();

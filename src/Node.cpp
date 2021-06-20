@@ -14,5 +14,6 @@ Node::Node(int id, bool is_leaf_node)
 
 Node::~Node()
 {
-	//TODO: delete left and right if not null
+	if (this->left) delete this->left;
+	if (this->right) delete this->right;
 }
