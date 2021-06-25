@@ -20,6 +20,7 @@ public:
 	void sort_nodes();
 	void construct_tree();
 	void create_codebook();
+	void create_canonical_codebook();
 	
 	Huffman();
 	~Huffman();

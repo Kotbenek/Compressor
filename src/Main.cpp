@@ -11,6 +11,7 @@ int main(int argc, char** argv)
 	h->sort_nodes();
 	h->construct_tree();
 	h->create_codebook();
+	h->create_canonical_codebook();
 	h->~Huffman();	
 	
 	//Exit program

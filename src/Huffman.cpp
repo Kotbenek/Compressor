@@ -23,7 +23,7 @@ void Huffman::count_occurences(string s)
 void Huffman::sort_nodes()
 {
 	//Sort nodes descending by occurences
-	Sort::bubble_sort(nodes, 256);
+	Sort::sort_nodes_by_occurences(nodes, 256);
 }
 
 void Huffman::construct_tree()
@@ -115,16 +115,30 @@ void Huffman::create_codebook()
 			codebook->codes[i] |= (((codeword & (1 << j)) >> j) << k++);
 		}
 		codebook->codes_length[i] = codeword_length;
-		codebook->codes_value[i] = nodes[i]->id;		
-		
-		//Debug: print codebook
-		cout << (char)nodes[i]->id << " ";
-		for (int j = 32 - codeword_length; j < 32; j++)
-		{
-			cout << ((codeword & (1 << j)) >> j);
-		}
-		cout << " ";
-		for (int j = codeword_length - 1; j >= 0; j--)
+		codebook->codes_value[i] = nodes[i]->id;
+	}
+}
+
+void Huffman::create_canonical_codebook()
+{
+	//Sort the codebook ascending by codeword length and then by codeword value
+	Sort::sort_huffman_codebook_by_length_then_by_value_ascending(codebook);
+	
+	//All codeword lengths stay the same
+	//Set the first symbol to 0
+	codebook->codes[0] = 0;
+	for (uint32_t i = 1; i < codebook->size; i++)
+	{
+		//For each symbol starting from the second one, assign next binary number
+		//If the codeword is longer than the previous one, append zeros (left shift)
+		codebook->codes[i] = ((codebook->codes[i - 1] + 1) << (codebook->codes_length[i] - codebook->codes_length[i - 1]));
+	}
+	
+	//Debug: print codebook
+	for (uint32_t i = 0; i < codebook->size; i++)
+	{		
+		cout << (char)codebook->codes_value[i] << " ";
+		for (int j = codebook->codes_length[i] - 1; j >= 0; j--)
 		{
 			cout << bitset<32>(codebook->codes[i])[j];
 		}

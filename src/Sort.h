@@ -1,10 +1,12 @@
 #pragma once
 #include "Node.h"
+#include "HuffmanCodebook.h"
 
 using namespace std;
 
 class Sort
 {	
 public:
-	static void bubble_sort(Node** a, int size);
+	static void sort_nodes_by_occurences(Node** a, int size);
+	static void sort_huffman_codebook_by_length_then_by_value_ascending(HuffmanCodebook* hc);
 };
