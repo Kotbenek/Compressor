@@ -4,6 +4,7 @@
 #include "HuffmanCodebook.h"
 
 #include <string>
+#include <cstdint>
 
 using namespace std;
 
@@ -12,7 +13,7 @@ class Huffman
 public:
 	Node** nodes;
 	Node* tree;
-	int leaf_nodes;
+	uint16_t leaf_nodes;
 	
 	HuffmanCodebook* codebook;
 	

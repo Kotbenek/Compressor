@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-Node::Node(int id, bool is_leaf_node)
+Node::Node(int32_t id, bool is_leaf_node)
 {
 	this->occurences = 0;
 	this->id = id;

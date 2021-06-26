@@ -14,9 +14,9 @@ using namespace std;
 void Huffman::count_occurences(string s)
 {
 	//Count byte occurences
-	for (int i = 0; i < (int)s.size(); i++)
+	for (uint32_t i = 0; i < s.size(); i++)
 	{
-		nodes[(int)s[i]]->occurences++;	
+		nodes[(uint32_t)s[i]]->occurences++;	
 	}
 }
 
@@ -38,7 +38,7 @@ void Huffman::construct_tree()
 	priority_queue<Node*, vector<Node*>, decltype(comparator)> queue(comparator);
 	
 	//Fill priority queue with data
-	for (int i = 0; i < 256; i++)
+	for (uint16_t i = 0; i < 256; i++)
 	{
 		if (!nodes[i]->occurences) 
 		{
@@ -80,13 +80,13 @@ void Huffman::create_codebook()
 	codebook = new HuffmanCodebook(leaf_nodes);
 	
 	//For every byte to encode
-	for (int i = 0; i < leaf_nodes; i++)
+	for (uint16_t i = 0; i < leaf_nodes; i++)
 	{
 		//Create codeword
 		uint32_t codeword = 0;
 		uint8_t codeword_length = 0;
 		//Start from MSB
-		int position = 31;
+		uint8_t position = 31;
 		
 		//Get node
 		Node* n = nodes[i];
@@ -95,7 +95,7 @@ void Huffman::create_codebook()
 		do
 		{			
 			//If node is right leaf of parent, set bit at this position
-			if (n->parent->right == n) codeword |= (1UL << position);
+			if (n->parent->right == n) codeword |= (1 << position);
 						
 			//Move position
 			position--;
@@ -110,7 +110,7 @@ void Huffman::create_codebook()
 		
 		//Store the codeword in the codebook
 		codebook->codes[i] = 0;
-		for (int j = 31, k = 0; j > 31 - codeword_length; j--)
+		for (uint8_t j = 31, k = 0; j > 31 - codeword_length; j--)
 		{
 			codebook->codes[i] |= (((codeword & (1 << j)) >> j) << k++);
 		}
@@ -131,14 +131,14 @@ void Huffman::create_canonical_codebook()
 	{
 		//For each symbol starting from the second one, assign next binary number
 		//If the codeword is longer than the previous one, append zeros (left shift)
-		codebook->codes[i] = ((codebook->codes[i - 1] + 1) << (codebook->codes_length[i] - codebook->codes_length[i - 1]));
+		codebook->codes[i] = (codebook->codes[i - 1] + 1) << (codebook->codes_length[i] - codebook->codes_length[i - 1]);
 	}
 	
 	//Debug: print codebook
 	for (uint32_t i = 0; i < codebook->size; i++)
 	{		
 		cout << (char)codebook->codes_value[i] << " ";
-		for (int j = codebook->codes_length[i] - 1; j >= 0; j--)
+		for (int8_t j = codebook->codes_length[i] - 1; j >= 0; j--)
 		{
 			cout << bitset<32>(codebook->codes[i])[j];
 		}
@@ -149,7 +149,7 @@ void Huffman::create_canonical_codebook()
 Huffman::Huffman()
 {
 	this->nodes = new Node*[256];
-	for (int i = 0; i < 256; i++)
+	for (uint16_t i = 0; i < 256; i++)
 	{
 		this->nodes[i] = new Node(i, true);
 	}

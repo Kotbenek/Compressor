@@ -4,7 +4,7 @@
 
 using namespace std;
 
-HuffmanCodebook::HuffmanCodebook(uint32_t size)
+HuffmanCodebook::HuffmanCodebook(uint16_t size)
 {
 	this->size = size;
 	codes = new uint32_t[size];
