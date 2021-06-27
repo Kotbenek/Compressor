@@ -17,7 +17,7 @@ public:
 	
 	HuffmanCodebook* codebook;
 	
-	void count_occurences(string s);
+	void count_occurences(string file);
 	void sort_nodes();
 	void construct_tree();
 	void create_codebook();
@@ -25,4 +25,7 @@ public:
 	
 	Huffman();
 	~Huffman();
+	
+private:
+	const int BUFFER_SIZE = 4096;
 };

@@ -8,16 +8,29 @@
 #include <iostream>
 #include <queue>
 #include <bitset>
+#include <fstream>
 
 using namespace std;
 
-void Huffman::count_occurences(string s)
+void Huffman::count_occurences(string file)
 {
-	//Count byte occurences
-	for (uint32_t i = 0; i < s.size(); i++)
+	//Count byte occurences in a file
+	ifstream fs(file, ifstream::binary);
+	char* buffer = new char[BUFFER_SIZE];
+	
+	while (fs.good())
 	{
-		nodes[(uint32_t)s[i]]->occurences++;	
+		fs.read(buffer, BUFFER_SIZE);
+		int32_t bytes_read = fs.gcount();
+		
+		for (int32_t i = 0; i < bytes_read; i++)
+		{
+			nodes[(uint8_t)buffer[i]]->occurences++;
+		}
 	}
+	
+	delete[] buffer;
+	fs.close();
 }
 
 void Huffman::sort_nodes()
