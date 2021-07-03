@@ -14,6 +14,8 @@ public:
     Node** nodes;
     Node* tree;
     uint16_t leaf_nodes;
+    uint16_t compressed_data_starts_at;
+    uint64_t original_file_size;
     
     HuffmanCodebook* codebook;
     

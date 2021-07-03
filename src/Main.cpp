@@ -17,7 +17,7 @@ int main(int argc, char** argv)
     
     h = new Huffman();
     h->read_canonical_codebook("testfile.huffman");
-    //h->decompress_file("testfile.huffman", "decompressed.txt");    
+    h->decompress_file("testfile.huffman", "decompressed.txt");
     h->~Huffman();
     
     //Exit program
