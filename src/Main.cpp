@@ -12,7 +12,12 @@ int main(int argc, char** argv)
     h->construct_tree();
     h->create_codebook();
     h->create_canonical_codebook();
-    h->compress_file("testfile.txt", "testfile.huffman");
+    h->compress_file("testfile.txt", "testfile.huffman");    
+    h->~Huffman();
+    
+    h = new Huffman();
+    h->read_canonical_codebook("testfile.huffman");
+    //h->decompress_file("testfile.huffman", "decompressed.txt");    
     h->~Huffman();
     
     //Exit program

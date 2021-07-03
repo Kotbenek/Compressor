@@ -159,6 +159,96 @@ void Huffman::create_canonical_codebook()
     }
 }
 
+void Huffman::read_canonical_codebook(string file)
+{
+    //Prepare input stream
+    ifstream fs(file, ifstream::binary);
+    char* buffer = new char[BUFFER_SIZE];
+    
+    if (!fs.good())
+    {
+        cout << "Input file error";
+        return;
+    }
+    
+    //Read file header
+    fs.read(buffer, 8);
+        
+    uint16_t dictionary_size = ((uint16_t)buffer[0] & 0xFF) + 1;
+    
+    uint64_t original_file_size = 0;
+    original_file_size |= (((uint64_t)buffer[1] & 0xFF) << 48);
+    original_file_size |= (((uint64_t)buffer[2] & 0xFF) << 40);
+    original_file_size |= (((uint64_t)buffer[3] & 0xFF) << 32);
+    original_file_size |= (((uint64_t)buffer[4] & 0xFF) << 24);
+    original_file_size |= (((uint64_t)buffer[5] & 0xFF) << 16);
+    original_file_size |= (((uint64_t)buffer[6] & 0xFF) <<  8);
+    original_file_size |= (((uint64_t)buffer[7] & 0xFF) <<  0);
+    
+    //Recreate codebook
+    codebook = new HuffmanCodebook(dictionary_size);
+    
+    //Read number of symbols with codeword length of 1...n
+    uint16_t dictionary_size_counter = 0;
+    uint8_t* number_of_symbols_with_codeword_length = new uint8_t[32];
+    for (uint8_t i = 0; i < 32; i++) number_of_symbols_with_codeword_length[i] = 0;
+    for (uint8_t i = 0; i < 32; i++)
+    {
+        fs.read(buffer, 1);
+        number_of_symbols_with_codeword_length[i] = buffer[0];
+        dictionary_size_counter += (buffer[0] & 0xFF);
+        if (dictionary_size_counter == dictionary_size)
+        {
+            dictionary_size_counter = i;
+            break;
+        }
+    }
+    
+    //Set codeword lengths
+    for (uint16_t i = 0; i < dictionary_size; i++)
+    {
+        for (uint8_t j = 0; j < 32; j++)
+        {
+            if (number_of_symbols_with_codeword_length[j])
+            {
+                number_of_symbols_with_codeword_length[j]--;
+                codebook->codes_length[i] = j + 1;
+                break;
+            }
+        }
+    }
+    
+    //Set the first symbol to 0
+    codebook->codes[0] = 0;
+    for (uint32_t i = 1; i < codebook->size; i++)
+    {
+        //For each symbol starting from the second one, assign next binary number
+        //If the codeword is longer than the previous one, append zeros (left shift)
+        codebook->codes[i] = (codebook->codes[i - 1] + 1) << (codebook->codes_length[i] - codebook->codes_length[i - 1]);
+    }
+    
+    //Read codeword values
+    fs.read(buffer, dictionary_size);
+    for (uint16_t i = 0; i < dictionary_size; i++)
+    {        
+        codebook->codes_value[i] = buffer[i];
+    }
+    
+    //Debug: print codebook    
+    for (uint32_t i = 0; i < codebook->size; i++)
+    {
+        cout << (char)codebook->codes_value[i] << " ";
+        for (int8_t j = codebook->codes_length[i] - 1; j >= 0; j--)
+        {
+            cout << bitset<32>(codebook->codes[i])[j];
+        }
+        cout << "\r\n";
+    }    
+    
+    delete[] buffer;
+    fs.close();
+}
+
 void Huffman::compress_file(string file_in, string file_out)
 {
     //Prepare input and output streams
@@ -195,7 +285,7 @@ void Huffman::compress_file(string file_in, string file_out)
     }
         
     //Write file header
-    fs_out << dictionary_size;
+    fs_out << (uint8_t)(dictionary_size - 1);
     
     fs_out << (uint8_t)((original_file_size >> 48) & 0xFF);
     fs_out << (uint8_t)((original_file_size >> 40) & 0xFF);
@@ -260,6 +350,20 @@ void Huffman::compress_file(string file_in, string file_out)
     fs_out.close();
 }
 
+void Huffman::decompress_file(string file_in, string file_out)
+{
+    //Prepare input and output streams
+    ifstream fs_in(file_in, ifstream::binary);
+    char* buffer = new char[BUFFER_SIZE];
+    ofstream fs_out(file_out, ofstream::binary);
+        
+    //TODO
+    
+    delete[] buffer;
+    fs_in.close();
+    fs_out.close();
+}
+
 Huffman::Huffman()
 {
     this->nodes = new Node*[256];
@@ -274,7 +378,7 @@ Huffman::Huffman()
 
 Huffman::~Huffman()
 {
-    tree->~Node();
+    if (tree) tree->~Node();
     delete[] nodes;
-    delete codebook;
+    if (codebook) delete codebook;
 }
