@@ -53,13 +53,10 @@ void Huffman::construct_tree()
     //Fill priority queue with data
     for (uint16_t i = 0; i < 256; i++)
     {
-        if (!nodes[i]->occurences) 
-        {
-            leaf_nodes = i;
-            break;
-        }
+        if (!nodes[i]->occurences) break;
         queue.push(nodes[i]);
     }
+    leaf_nodes = queue.size();
     
     //Process while the queue is not empty
     while (queue.size() > 1)
@@ -106,19 +103,19 @@ void Huffman::create_codebook()
         
         //Do while node is not root
         do
-        {            
+        {
+            //Increment codeword length
+            codeword_length++;
+            
             //If node is right leaf of parent, set bit at this position
+            if (!n->parent) break;
             if (n->parent->right == n) codeword |= (1 << position);
-                        
+            
             //Move position
             position--;
             
             //Move to parent
             n = n->parent;
-            
-            //Increment codeword length
-            codeword_length++;
-            
         } while(n->parent != NULL);
         
         //Store the codeword in the codebook
@@ -150,7 +147,7 @@ void Huffman::create_canonical_codebook()
     //Debug: print codebook
     for (uint32_t i = 0; i < codebook->size; i++)
     {        
-        cout << (char)codebook->codes_value[i] << " ";
+        cout << (int)codebook->codes_value[i] << "\t";        
         for (int8_t j = codebook->codes_length[i] - 1; j >= 0; j--)
         {
             cout << bitset<32>(codebook->codes[i])[j];
@@ -191,13 +188,13 @@ void Huffman::read_canonical_codebook(string file)
     
     //Read number of symbols with codeword length of 1...n
     uint16_t dictionary_size_counter = 0;
-    uint8_t* number_of_symbols_with_codeword_length = new uint8_t[32];
+    uint16_t* number_of_symbols_with_codeword_length = new uint16_t[32];
     for (uint8_t i = 0; i < 32; i++) number_of_symbols_with_codeword_length[i] = 0;
     for (uint8_t i = 0; i < 32; i++)
     {
         fs.read(buffer, 1);
         compressed_data_starts_at++;
-        number_of_symbols_with_codeword_length[i] = buffer[0];
+        number_of_symbols_with_codeword_length[i] = (buffer[0] & 0xFF);
         dictionary_size_counter += (buffer[0] & 0xFF);
         if (dictionary_size_counter == dictionary_size)
         {
@@ -205,6 +202,7 @@ void Huffman::read_canonical_codebook(string file)
             break;
         }
     }
+    if (!dictionary_size_counter) number_of_symbols_with_codeword_length[7] = 256;
     
     //Set codeword lengths
     for (uint16_t i = 0; i < dictionary_size; i++)
@@ -237,10 +235,10 @@ void Huffman::read_canonical_codebook(string file)
         codebook->codes_value[i] = buffer[i];
     }
     
-    //Debug: print codebook    
+    //Debug: print codebook
     for (uint32_t i = 0; i < codebook->size; i++)
     {
-        cout << (char)codebook->codes_value[i] << " ";
+        cout << (int)codebook->codes_value[i] << "\t";
         for (int8_t j = codebook->codes_length[i] - 1; j >= 0; j--)
         {
             cout << bitset<32>(codebook->codes[i])[j];
@@ -287,7 +285,7 @@ void Huffman::compress_file(string file_in, string file_out)
             break;
         }
     }
-        
+    
     //Write file header
     fs_out << (uint8_t)(dictionary_size - 1);
     

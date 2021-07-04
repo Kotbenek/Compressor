@@ -1,5 +1,6 @@
 make all
 ./bin/compressor
-hexdump -C testfile.huffman
-hexdump -C decompressed.txt
+cksum testfile.txt
+cksum testfile.huffman
+cksum decompressed.txt
 
