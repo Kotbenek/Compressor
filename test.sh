@@ -44,8 +44,8 @@ mkdir "$TESTS_DIR"
 
 # Run tests
 
-print_test_init "Huffman test - text file  -  build_and_run.sh"
-FILE="build_and_run.sh"
+print_test_init "Huffman test - text file  -  build_and_test.sh"
+FILE="build_and_test.sh"
 ARG1="${FILE}"
 ARG2="${TESTS_DIR}/$(basename ${FILE}).huffman"
 ARG3="${TESTS_DIR}/$(basename ${FILE})"
@@ -113,3 +113,4 @@ assert_equal "$(sha256sum ${ARG1} | cut -d ' ' -f 1)" "$(sha256sum ${ARG3} | cut
 
 # Remove test directory
 rm -rf "$TESTS_DIR"
+
