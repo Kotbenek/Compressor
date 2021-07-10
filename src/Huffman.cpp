@@ -143,17 +143,6 @@ void Huffman::create_canonical_codebook()
         //If the codeword is longer than the previous one, append zeros (left shift)
         codebook->codes[i] = (codebook->codes[i - 1] + 1) << (codebook->codes_length[i] - codebook->codes_length[i - 1]);
     }
-    
-    //Debug: print codebook
-    for (uint32_t i = 0; i < codebook->size; i++)
-    {        
-        cout << (int)codebook->codes_value[i] << "\t";        
-        for (int8_t j = codebook->codes_length[i] - 1; j >= 0; j--)
-        {
-            cout << bitset<32>(codebook->codes[i])[j];
-        }
-        cout << "\r\n";
-    }
 }
 
 void Huffman::read_canonical_codebook(string file)
@@ -234,17 +223,6 @@ void Huffman::read_canonical_codebook(string file)
     {        
         codebook->codes_value[i] = buffer[i];
     }
-    
-    //Debug: print codebook
-    for (uint32_t i = 0; i < codebook->size; i++)
-    {
-        cout << (int)codebook->codes_value[i] << "\t";
-        for (int8_t j = codebook->codes_length[i] - 1; j >= 0; j--)
-        {
-            cout << bitset<32>(codebook->codes[i])[j];
-        }
-        cout << "\r\n";
-    }    
     
     delete[] buffer;
     delete[] number_of_symbols_with_codeword_length;
