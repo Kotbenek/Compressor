@@ -8,50 +8,83 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    if (argc < 4)
+    if (argc != 5)
     {
         cout << "\r\n";
-        cout << "Usage: ./compressor [-hc] [-hd] file1 file2" << "\r\n";
         
+        cout << "Usage: ./compressor -c|-d algorithm file1 file2" << "\r\n";        
         cout << "\r\n";
         
         cout << "Options:" << "\r\n";
-        cout << "    -hc" << "    " << "Compress the file1 using canonical Huffman compression" << "\r\n";
+        cout << "     -c" << "    " << "Compress the file1 using specified algorithm" << "\r\n";
         cout << "       " << "    " << "and save the result as file2" << "\r\n";
-        cout << "    -hd" << "    " << "Decompress the file1 using canonical Huffman compression" << "\r\n";
+        cout << "     -d" << "    " << "Decompress the file1 using specified algorithm" << "\r\n";
         cout << "       " << "    " << "and save the result as file2" << "\r\n";
+        cout << "\r\n";
+        
+        cout << "Supported algorithms:" << "\r\n";
+        cout << "huffman" << "    " << "Canonical Huffman" << "\r\n";
         cout << "\r\n";
     }
     else
     {
-        string file1 = argv[argc - 2];
-        string file2 = argv[argc - 1];
-        string operation = argv[argc - 3];
+        string operation = argv[1];
+        string algorithm = argv[2];
+        string file1 = argv[3];
+        string file2 = argv[4];
         
-        if (operation == "-hc")
+        if (operation == "-c")
         {
-            Huffman* h = new Huffman();
-            h->count_occurences(file1);
-            h->sort_nodes();
-            h->construct_tree();
-            h->create_codebook();
-            h->create_canonical_codebook();
-            h->compress_file(file1, file2);
-            h->~Huffman();
+            if (algorithm == "huffman")
+            {
+                Huffman* h = new Huffman();
+                h->count_occurences(file1);
+                h->sort_nodes();
+                h->construct_tree();
+                h->create_codebook();
+                h->create_canonical_codebook();
+                h->compress_file(file1, file2);
+                h->~Huffman();
+            }
+            else
+            {
+                bad_argument(algorithm);
+                
+                //Exit program
+                return 1;
+            }
         }
-        else if (operation == "-hd")
+        else if (operation == "-d")
         {
-            Huffman* h = new Huffman();
-            h->read_canonical_codebook(file1);
-            h->decompress_file(file1, file2);
-            h->~Huffman();
+            if (algorithm == "huffman")
+            {
+                Huffman* h = new Huffman();
+                h->read_canonical_codebook(file1);
+                h->decompress_file(file1, file2);
+                h->~Huffman();
+            }
+            else
+            {
+                bad_argument(algorithm);
+                
+                //Exit program
+                return 1;
+            }
         }
         else
         {
-            cout << "Bad argument: " << operation << "\r\n";
+            bad_argument(operation);
+            
+            //Exit program
+            return 1;
         }
     }
     
     //Exit program
     return 0;
+}
+
+void bad_argument(string s)
+{
+    cout << "Bad argument: " << s << "\r\n";
 }

@@ -46,10 +46,10 @@ test_compress_decompress_huffman()
 {
     ARG1="${FILE}"
     ARG2="${TESTS_DIR}/$(basename ${FILE}).huffman"
-    ARG3="${TESTS_DIR}/$(basename ${FILE})"
+    ARG3="${TESTS_DIR}/$(basename ${FILE}).decompressed"
     
-    ./bin/compressor "-hc" "${ARG1}" "${ARG2}"
-    ./bin/compressor "-hd" "${ARG2}" "${ARG3}"
+    ./bin/compressor "-c" "huffman" "${ARG1}" "${ARG2}"
+    ./bin/compressor "-d" "huffman" "${ARG2}" "${ARG3}"
     
     assert_equal "$(sha256sum ${ARG1} | cut -d ' ' -f 1)" "$(sha256sum ${ARG3} | cut -d ' ' -f 1)"
 }
@@ -95,4 +95,4 @@ test_compress_decompress_huffman
 rm -rf "$TESTS_DIR"
 
 # Display test results
-echo "$TESTS_PASSED/$TESTS tests passed"
+echo "${TESTS_PASSED}/${TESTS} tests passed"
