@@ -21,5 +21,5 @@ Options:
 Run `./test.sh` to launch tests.
 Run `./build_and_test.sh` to compile ./bin/compressor and launch tests.
 
-Example test output:
+### Example test output
 <img src="images/test_output.png">
