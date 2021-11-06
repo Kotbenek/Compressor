@@ -1,6 +1,7 @@
 #include "Main.h"
 
 #include "Huffman.h"
+#include "LZ77.h"
 
 #include <iostream>
 
@@ -46,6 +47,12 @@ int main(int argc, char** argv)
                 h->compress_file(file1, file2);
                 h->~Huffman();
             }
+            else if (algorithm == "lz77")
+            {
+                LZ77* lz77 = new LZ77();
+                lz77->compress_file(file1, file2);
+                lz77->~LZ77();
+            }
             else
             {
                 bad_argument(algorithm);
@@ -62,6 +69,12 @@ int main(int argc, char** argv)
                 h->read_canonical_codebook(file1);
                 h->decompress_file(file1, file2);
                 h->~Huffman();
+            }
+            else if (algorithm == "lz77")
+            {
+                LZ77* lz77 = new LZ77();
+                lz77->decompress_file(file1, file2);
+                lz77->~LZ77();
             }
             else
             {
