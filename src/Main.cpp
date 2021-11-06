@@ -25,6 +25,7 @@ int main(int argc, char** argv)
         
         cout << "Supported algorithms:" << "\r\n";
         cout << "huffman" << "    " << "Canonical Huffman" << "\r\n";
+        cout << "lz77" << "       " << "Lempel-Ziv 77" << "\r\n";
         cout << "\r\n";
     }
     else
