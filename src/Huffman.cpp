@@ -229,7 +229,7 @@ void Huffman::read_canonical_codebook(string file)
     fs.close();
 }
 
-void Huffman::compress_file(string file_in, string file_out)
+void Huffman::compress(string file_in, string file_out)
 {
     //Prepare input and output streams
     ifstream fs_in(file_in, ifstream::binary);
@@ -330,7 +330,7 @@ void Huffman::compress_file(string file_in, string file_out)
     fs_out.close();
 }
 
-void Huffman::decompress_file(string file_in, string file_out)
+void Huffman::decompress(string file_in, string file_out)
 {
     //Prepare input and output streams
     ifstream fs_in(file_in, ifstream::binary);
@@ -377,9 +377,24 @@ void Huffman::decompress_file(string file_in, string file_out)
         }
     }
     
-    
     delete[] buffer;
     fs_out.close();
+}
+
+void Huffman::compress_file(string file_in, string file_out)
+{
+    count_occurences(file_in);
+    sort_nodes();
+    construct_tree();
+    create_codebook();
+    create_canonical_codebook();
+    compress(file_in, file_out);
+}
+
+void Huffman::decompress_file(string file_in, string file_out)
+{
+    read_canonical_codebook(file_in);
+    decompress(file_in, file_out);
 }
 
 Huffman::Huffman()

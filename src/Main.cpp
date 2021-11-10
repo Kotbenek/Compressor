@@ -40,11 +40,6 @@ int main(int argc, char** argv)
             if (algorithm == "huffman")
             {
                 Huffman* h = new Huffman();
-                h->count_occurences(file1);
-                h->sort_nodes();
-                h->construct_tree();
-                h->create_codebook();
-                h->create_canonical_codebook();
                 h->compress_file(file1, file2);
                 h->~Huffman();
             }
@@ -67,7 +62,6 @@ int main(int argc, char** argv)
             if (algorithm == "huffman")
             {
                 Huffman* h = new Huffman();
-                h->read_canonical_codebook(file1);
                 h->decompress_file(file1, file2);
                 h->~Huffman();
             }
