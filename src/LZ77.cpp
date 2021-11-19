@@ -67,7 +67,7 @@ void LZ77::compress_file(string file_in, string file_out)
         
         //Move read_pointer to new position
         read_pointer += best_match_length;
-        read_pointer %= BUFFER_SIZE;
+        read_pointer -= (read_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
         
         //If match found
         if (best_match_length)
@@ -87,7 +87,7 @@ void LZ77::compress_file(string file_in, string file_out)
         
         //Move read_pointer to new position
         read_pointer++;
-        read_pointer %= BUFFER_SIZE;
+        read_pointer -= (read_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
     }
     
     //Close files
@@ -146,11 +146,11 @@ void LZ77::decompress_file(string file_in, string file_out)
             fs_out << next_byte;
             
             buffer[write_pointer++] = next_byte;
-            write_pointer %= BUFFER_SIZE;
+            write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
         }
         else
         {
-            read_pointer = (write_pointer + BUFFER_SIZE - distance) % BUFFER_SIZE;
+            read_pointer = (write_pointer + BUFFER_SIZE - distance) - ((write_pointer + BUFFER_SIZE - distance) >= BUFFER_SIZE) * BUFFER_SIZE;
             
             for (uint32_t i = 0; i < length; i++)
             {
@@ -158,13 +158,13 @@ void LZ77::decompress_file(string file_in, string file_out)
                 
                 buffer[write_pointer++] = buffer[read_pointer++];
                 
-                write_pointer %= BUFFER_SIZE;
-                read_pointer %= BUFFER_SIZE;
+                write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
+                read_pointer -= (read_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
             }
             
             fs_out << next_byte;
             buffer[write_pointer++] = next_byte;
-            write_pointer %= BUFFER_SIZE;
+            write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
         }
     }
     
@@ -196,7 +196,7 @@ int32_t LZ77::read_input_file(ifstream &fs_in, uint32_t length)
         
         int32_t bytes_read = fs_in.gcount();
         write_pointer += bytes_read;
-        write_pointer %= BUFFER_SIZE;
+        write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
         
         return length - bytes_read;
     }
@@ -207,7 +207,7 @@ int32_t LZ77::read_input_file(ifstream &fs_in, uint32_t length)
         
         int32_t bytes_read = fs_in.gcount();
         write_pointer += bytes_read;
-        write_pointer %= BUFFER_SIZE;
+        write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
         
         if (write_pointer != 0) return bytes_read;
         
@@ -215,7 +215,7 @@ int32_t LZ77::read_input_file(ifstream &fs_in, uint32_t length)
         
         int32_t bytes_read_2 = fs_in.gcount();
         write_pointer += bytes_read_2;
-        write_pointer %= BUFFER_SIZE;
+        write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
         
         return length - (bytes_read + bytes_read_2);
     }
@@ -260,7 +260,8 @@ int32_t LZ77::read_triple(ifstream &fs_in, char* buffer, uint16_t* distance, uin
 
 uint32_t LZ77::buffer_bytes_available()
 {
-    return (BUFFER_SIZE + write_pointer - read_pointer) % BUFFER_SIZE;
+    //Safe if (BUFFER_SIZE + write_pointer - read_pointer) < 2 * BUFFER_SIZE
+    return (BUFFER_SIZE + write_pointer - read_pointer) - ((BUFFER_SIZE + write_pointer - read_pointer) >= BUFFER_SIZE) * BUFFER_SIZE;
 }
 
 LZ77::LZ77()
