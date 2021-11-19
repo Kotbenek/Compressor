@@ -223,12 +223,14 @@ int32_t LZ77::read_input_file(ifstream &fs_in, uint32_t length)
 
 char LZ77::read_buffer_dictionary(uint32_t position)
 {
-    return buffer[(read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) % BUFFER_SIZE];
+    //Safe if (read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) < 2 * BUFFER_SIZE
+    return buffer[(read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) - ((read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) >= BUFFER_SIZE) * BUFFER_SIZE];
 }
 
 char LZ77::read_buffer_look_ahead(uint32_t position)
 {
-    return buffer[(read_pointer + position) % BUFFER_SIZE];
+    //Safe if (read_pointer + position) < 2 * BUFFER_SIZE
+    return buffer[(read_pointer + position) - ((read_pointer + position) >= BUFFER_SIZE) * BUFFER_SIZE];
 }
 
 void LZ77::write_triple(ofstream &fs_out, uint16_t distance, uint8_t length, uint8_t next_byte)
