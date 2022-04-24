@@ -44,107 +44,87 @@ assert_equal()
 
 test_compress_decompress_huffman()
 {
-    ARG1="${FILE}"
-    ARG2="${TESTS_DIR}/$(basename ${FILE}).huffman"
-    ARG3="${TESTS_DIR}/$(basename ${FILE}).decompressed"
+    local ARG1
+    local ARG2
     
-    ./bin/compressor "-c" "huffman" "${ARG1}" "${ARG2}"
-    ./bin/compressor "-d" "huffman" "${ARG2}" "${ARG3}"
+    ARG1=${TESTS_DIR}/$(basename "$1").huffman
+    ARG2=${TESTS_DIR}/$(basename "$1").decompressed
     
-    assert_equal "$(sha256sum ${ARG1} | cut -d ' ' -f 1)" "$(sha256sum ${ARG3} | cut -d ' ' -f 1)"
+    ./bin/compressor "-c" "huffman" "$1" "${ARG1}"
+    ./bin/compressor "-d" "huffman" "${ARG1}" "${ARG2}"
     
-    rm ${ARG2}
-    rm ${ARG3}
+    assert_equal "$(sha256sum "$1" | cut -d ' ' -f 1)" "$(sha256sum "${ARG2}" | cut -d ' ' -f 1)"
+    
+    rm "${ARG1}"
+    rm "${ARG2}"
 }
 
 test_compress_decompress_lz77()
 {
-    ARG1="${FILE}"
-    ARG2="${TESTS_DIR}/$(basename ${FILE}).lz77"
-    ARG3="${TESTS_DIR}/$(basename ${FILE}).decompressed"
+    local ARG1
+    local ARG2
     
-    ./bin/compressor "-c" "lz77" "${ARG1}" "${ARG2}"
-    ./bin/compressor "-d" "lz77" "${ARG2}" "${ARG3}"
+    ARG1=${TESTS_DIR}/$(basename "$1").lz77
+    ARG2=${TESTS_DIR}/$(basename "$1").decompressed
     
-    assert_equal "$(sha256sum ${ARG1} | cut -d ' ' -f 1)" "$(sha256sum ${ARG3} | cut -d ' ' -f 1)"
+    ./bin/compressor "-c" "lz77" "$1" "${ARG1}"
+    ./bin/compressor "-d" "lz77" "${ARG1}" "${ARG2}"
     
-    rm ${ARG2}
-    rm ${ARG3}
+    assert_equal "$(sha256sum "$1" | cut -d ' ' -f 1)" "$(sha256sum "${ARG2}" | cut -d ' ' -f 1)"
+    
+    rm "${ARG1}"
+    rm "${ARG2}"
 }
 
 # Prepare test directory
 if [ -d "$TESTS_DIR" ]; then rm -rf "$TESTS_DIR"; fi
 mkdir "$TESTS_DIR"
 
-# Prepare files
+TXT_FILES=("build_and_test.sh" "test.sh" "makefile")
+BIN_FILES=()
+
+# Prepare binary files
 FILE="${TESTS_DIR}/zero_4K"
 head -c 4KB /dev/zero > ${FILE}
+BIN_FILES+=("${FILE}")
 
 FILE="${TESTS_DIR}/random_4K"
 head -c 4KB /dev/urandom > ${FILE}
+BIN_FILES+=("${FILE}")
 
 FILE="${TESTS_DIR}/zero_256K"
 head -c 256KB /dev/zero > ${FILE}
+BIN_FILES+=("${FILE}")
 
 FILE="${TESTS_DIR}/random_256K"
 head -c 256KB /dev/urandom > ${FILE}
+BIN_FILES+=("${FILE}")
 
 # Run tests
-print_test_init "Huffman\ttext file\tbuild_and_test.sh"
-FILE="build_and_test.sh"
-test_compress_decompress_huffman
 
-print_test_init "Huffman\ttext file\ttest.sh"
-FILE="test.sh"
-test_compress_decompress_huffman
+# Text files - Huffman algorithm
+for f in "${TXT_FILES[@]}"; do
+    print_test_init "Huffman\ttext file\t$(basename "$f")"
+    test_compress_decompress_huffman "$f"
+done
 
-print_test_init "Huffman\ttext file\tmakefile"
-FILE="makefile"
-test_compress_decompress_huffman
+# Binary files - Huffman algorithm
+for f in "${BIN_FILES[@]}"; do
+    print_test_init "Huffman\tbinary file\t$(basename "$f")"
+    test_compress_decompress_huffman "$f"
+done
 
-print_test_init "Huffman\tbinary file\tzero_4K"
-FILE="${TESTS_DIR}/zero_4K"
-test_compress_decompress_huffman
+# Text files - LZ77 algorithm
+for f in "${TXT_FILES[@]}"; do
+    print_test_init "LZ77\ttext file\t$(basename "$f")"
+    test_compress_decompress_lz77 "$f"
+done
 
-print_test_init "Huffman\tbinary file\trandom_4K"
-FILE="${TESTS_DIR}/random_4K"
-test_compress_decompress_huffman
-
-print_test_init "Huffman\tbinary file\tzero_256K"
-FILE="${TESTS_DIR}/zero_256K"
-test_compress_decompress_huffman
-
-print_test_init "Huffman\tbinary file\trandom_256K"
-FILE="${TESTS_DIR}/random_256K"
-test_compress_decompress_huffman
-
-print_test_init "LZ77\ttext file\tbuild_and_test.sh"
-FILE="build_and_test.sh"
-test_compress_decompress_lz77
-
-print_test_init "LZ77\ttext file\ttest.sh"
-FILE="test.sh"
-test_compress_decompress_lz77
-
-print_test_init "LZ77\ttext file\tmakefile"
-FILE="makefile"
-test_compress_decompress_lz77
-
-print_test_init "LZ77\tbinary file\tzero_4K"
-FILE="${TESTS_DIR}/zero_4K"
-test_compress_decompress_lz77
-
-print_test_init "LZ77\tbinary file\trandom_4K"
-FILE="${TESTS_DIR}/random_4K"
-test_compress_decompress_lz77
-
-print_test_init "LZ77\tbinary file\tzero_256K"
-FILE="${TESTS_DIR}/zero_256K"
-test_compress_decompress_lz77
-
-print_test_init "LZ77\tbinary file\trandom_256K"
-FILE="${TESTS_DIR}/random_256K"
-test_compress_decompress_lz77
+# Binary files - LZ77 algorithm
+for f in "${BIN_FILES[@]}"; do
+    print_test_init "LZ77\tbinary file\t$(basename "$f")"
+    test_compress_decompress_lz77 "$f"
+done
 
 # Remove test directory
 rm -rf "$TESTS_DIR"
