@@ -42,35 +42,18 @@ assert_equal()
     fi
 }
 
-test_compress_decompress_huffman()
+test_compress_decompress()
 {
     local ARG1
     local ARG2
     
-    ARG1=${TESTS_DIR}/$(basename "$1").huffman
-    ARG2=${TESTS_DIR}/$(basename "$1").decompressed
+    ARG1=${TESTS_DIR}/$(basename "$2")."$1"
+    ARG2=${TESTS_DIR}/$(basename "$2").decompressed
     
-    ./bin/compressor "-c" "huffman" "$1" "${ARG1}"
-    ./bin/compressor "-d" "huffman" "${ARG1}" "${ARG2}"
+    ./bin/compressor "-c" "$1" "$2" "${ARG1}"
+    ./bin/compressor "-d" "$1" "${ARG1}" "${ARG2}"
     
-    assert_equal "$(sha256sum "$1" | cut -d ' ' -f 1)" "$(sha256sum "${ARG2}" | cut -d ' ' -f 1)"
-    
-    rm "${ARG1}"
-    rm "${ARG2}"
-}
-
-test_compress_decompress_lz77()
-{
-    local ARG1
-    local ARG2
-    
-    ARG1=${TESTS_DIR}/$(basename "$1").lz77
-    ARG2=${TESTS_DIR}/$(basename "$1").decompressed
-    
-    ./bin/compressor "-c" "lz77" "$1" "${ARG1}"
-    ./bin/compressor "-d" "lz77" "${ARG1}" "${ARG2}"
-    
-    assert_equal "$(sha256sum "$1" | cut -d ' ' -f 1)" "$(sha256sum "${ARG2}" | cut -d ' ' -f 1)"
+    assert_equal "$(sha256sum "$2" | cut -d ' ' -f 1)" "$(sha256sum "${ARG2}" | cut -d ' ' -f 1)"
     
     rm "${ARG1}"
     rm "${ARG2}"
@@ -80,6 +63,7 @@ test_compress_decompress_lz77()
 if [ -d "$TESTS_DIR" ]; then rm -rf "$TESTS_DIR"; fi
 mkdir "$TESTS_DIR"
 
+ALGORITHMS=("huffman" "lz77")
 TXT_FILES=("build_and_test.sh" "test.sh" "makefile")
 BIN_FILES=()
 
@@ -101,29 +85,18 @@ head -c 256KB /dev/urandom > ${FILE}
 BIN_FILES+=("${FILE}")
 
 # Run tests
-
-# Text files - Huffman algorithm
-for f in "${TXT_FILES[@]}"; do
-    print_test_init "Huffman\ttext file\t$(basename "$f")"
-    test_compress_decompress_huffman "$f"
-done
-
-# Binary files - Huffman algorithm
-for f in "${BIN_FILES[@]}"; do
-    print_test_init "Huffman\tbinary file\t$(basename "$f")"
-    test_compress_decompress_huffman "$f"
-done
-
-# Text files - LZ77 algorithm
-for f in "${TXT_FILES[@]}"; do
-    print_test_init "LZ77\ttext file\t$(basename "$f")"
-    test_compress_decompress_lz77 "$f"
-done
-
-# Binary files - LZ77 algorithm
-for f in "${BIN_FILES[@]}"; do
-    print_test_init "LZ77\tbinary file\t$(basename "$f")"
-    test_compress_decompress_lz77 "$f"
+for a in "${ALGORITHMS[@]}"; do
+    # Text files
+    for f in "${TXT_FILES[@]}"; do
+        print_test_init "$a\ttext file\t$(basename "$f")"
+        test_compress_decompress "$a" "$f"
+    done
+    
+    # Binary files
+    for f in "${BIN_FILES[@]}"; do
+        print_test_init "$a\tbinary file\t$(basename "$f")"
+        test_compress_decompress "$a" "$f"
+    done
 done
 
 # Remove test directory
