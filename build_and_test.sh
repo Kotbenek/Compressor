@@ -1,4 +1,2 @@
-make all
-echo ""
-./test.sh
+make all && echo "" && ./test.sh
 
