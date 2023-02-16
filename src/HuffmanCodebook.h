@@ -11,7 +11,7 @@ public:
     uint32_t* codes;
     uint8_t* codes_length;
     uint8_t* codes_value;
-    
+
     HuffmanCodebook(uint16_t size);
     ~HuffmanCodebook();
 };

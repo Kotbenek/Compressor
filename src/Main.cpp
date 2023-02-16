@@ -12,17 +12,17 @@ int main(int argc, char** argv)
     if (argc != 5)
     {
         cout << "\r\n";
-        
-        cout << "Usage: ./compressor -c|-d algorithm file1 file2" << "\r\n";        
+
+        cout << "Usage: ./compressor -c|-d algorithm file1 file2" << "\r\n";
         cout << "\r\n";
-        
+
         cout << "Options:" << "\r\n";
         cout << "     -c" << "    " << "Compress the file1 using specified algorithm" << "\r\n";
         cout << "       " << "    " << "and save the result as file2" << "\r\n";
         cout << "     -d" << "    " << "Decompress the file1 using specified algorithm" << "\r\n";
         cout << "       " << "    " << "and save the result as file2" << "\r\n";
         cout << "\r\n";
-        
+
         cout << "Supported algorithms:" << "\r\n";
         cout << "huffman" << "    " << "Canonical Huffman" << "\r\n";
         cout << "lz77" << "       " << "Lempel-Ziv 77" << "\r\n";
@@ -34,7 +34,7 @@ int main(int argc, char** argv)
         string algorithm = argv[2];
         string file1 = argv[3];
         string file2 = argv[4];
-        
+
         if (operation == "-c")
         {
             if (algorithm == "huffman")
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
             else
             {
                 bad_argument(algorithm);
-                
+
                 //Exit program
                 return 1;
             }
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
             else
             {
                 bad_argument(algorithm);
-                
+
                 //Exit program
                 return 1;
             }
@@ -82,12 +82,12 @@ int main(int argc, char** argv)
         else
         {
             bad_argument(operation);
-            
+
             //Exit program
             return 1;
         }
     }
-    
+
     //Exit program
     return 0;
 }

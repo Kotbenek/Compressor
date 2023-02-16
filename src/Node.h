@@ -13,7 +13,7 @@ public:
     Node* left;
     Node* right;
     Node* parent;
-    
+
     Node(int32_t id, bool is_leaf_node);
     ~Node();
 };
