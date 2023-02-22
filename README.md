@@ -1,25 +1,27 @@
 # Compressor
 C++ file compression utility tool
 
-## Implemented algorithms
-- `huffman` - Canonical Huffman
-- `lz77` - Lempel-Ziv 77
-
 ## Setup
-Run `make build` to compile ./bin/compressor
+Run `make build` to compile `./bin/compressor`
 
 ## Usage
 ```
-./bin/compressor -c|-d algorithm file1 file2
-```
+Usage: compressor (-c | --compress | -d | --decompress) (-a <algorithm> | --algorithm <algorithm>) (-i <file> | --input <file>) (-o <file> | --output <file>)
 
-Options:
-- `-c` - Compress the file1 using specified algorithm and save the result as file2
-- `-d` - Decompress the file1 using specified algorithm and save the result as file2
+-c, --compress                            Compress file
+-d, --decompress                          Decompress file
+-a <algorithm>, --algorithm <algorithm>   Algorithm to use
+-i <file>, --input <file>                 Input file
+-o <file>, --output <file>                Output file
+
+Supported algorithms:
+huffman  Canonical Huffman
+lz77     Lempel-Ziv 77
+```
 
 ## Tests
 Run `./test.sh` to launch tests.
-Run `./build_and_test.sh` to compile ./bin/compressor and launch tests.
+Run `./build_and_test.sh` to compile `./bin/compressor` and launch tests.
 
 ### Example test output
 <img src="images/test_output.png">

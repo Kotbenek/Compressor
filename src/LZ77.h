@@ -1,11 +1,13 @@
 #pragma once
 
+#include "CompressionAlgorithm.h"
+
 #include <cstdint>
 #include <string>
 
 using namespace std;
 
-class LZ77
+class LZ77 : public CompressionAlgorithm
 {
 public:
     /*

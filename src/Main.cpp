@@ -1,98 +1,138 @@
 #include "Main.h"
 
+#include "CompressionAlgorithm.h"
 #include "Huffman.h"
 #include "LZ77.h"
 
+#include <string>
 #include <iostream>
+#include <cstring>
+#include <getopt.h>
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
-    if (argc != 5)
+    int compress = -1;
+    CompressionAlgorithm* algorithm = NULL;
+    string file_in;
+    string file_out;
+
+    int c;
+
+    while (1)
     {
-        cout << "\r\n";
+        static struct option long_options[] =
+        {
+            {"compress",   no_argument,       0, 'c'},
+            {"decompress", no_argument,       0, 'd'},
+            {"algorithm",  required_argument, 0, 'a'},
+            {"input",      required_argument, 0, 'i'},
+            {"output",     required_argument, 0, 'o'},
+            {"help",       no_argument,       0, 'h'},
+            {0, 0, 0, 0}
+        };
 
-        cout << "Usage: ./compressor -c|-d algorithm file1 file2" << "\r\n";
-        cout << "\r\n";
+        c = getopt_long(argc, argv, "cda:i:o:h", long_options, NULL);
 
-        cout << "Options:" << "\r\n";
-        cout << "     -c" << "    " << "Compress the file1 using specified algorithm" << "\r\n";
-        cout << "       " << "    " << "and save the result as file2" << "\r\n";
-        cout << "     -d" << "    " << "Decompress the file1 using specified algorithm" << "\r\n";
-        cout << "       " << "    " << "and save the result as file2" << "\r\n";
-        cout << "\r\n";
+        if (c == -1)
+            break;
 
-        cout << "Supported algorithms:" << "\r\n";
-        cout << "huffman" << "    " << "Canonical Huffman" << "\r\n";
-        cout << "lz77" << "       " << "Lempel-Ziv 77" << "\r\n";
-        cout << "\r\n";
+        switch(c)
+        {
+            case 'c':
+                //Compress
+                compress = 1;
+                break;
+            case 'd':
+                //Decompress
+                compress = 0;
+                break;
+            case 'a':
+                //Algorithm
+                if (strcmp(optarg, "huffman") == 0)
+                {
+                    algorithm = new Huffman();
+                    break;
+                }
+                if (strcmp(optarg, "lz77") == 0)
+                {
+                    algorithm = new LZ77();
+                    break;
+                }
+                cout << "Algorithm not supported: " << optarg << "\n";
+                return 1;
+            case 'i':
+                //Input file
+                file_in = optarg;
+                break;
+            case 'o':
+                //Output file
+                file_out = optarg;
+                break;
+            case 'h':
+                //Help
+                cout << "\n"
+                     << "Usage: compressor "
+                     << "(-c | --compress | -d | --decompress) "
+                     << "(-a <algorithm> | --algorithm <algorithm>) "
+                     << "(-i <file> | --input <file>) "
+                     << "(-o <file> | --output <file>)" << "\n"
+                     << "\n"
+                     << "-c, --compress                            Compress file" << "\n"
+                     << "-d, --decompress                          Decompress file" << "\n"
+                     << "-a <algorithm>, --algorithm <algorithm>   Algorithm to use" << "\n"
+                     << "-i <file>, --input <file>                 Input file" << "\n"
+                     << "-o <file>, --output <file>                Output file" << "\n"
+                     << "\n"
+                     << "Supported algorithms:" << "\n"
+                     << "huffman  Canonical Huffman" << "\n"
+                     << "lz77     Lempel-Ziv 77" << "\n"
+                     << "\n";
+                return 0;
+            case '?':
+                //Unknown argument
+                return 1;
+            default:
+                abort();
+        }
     }
+
+    if (compress == -1)
+    {
+        //Missing operation
+        cout << "Missing argument: (-c | --compress | -d | --decompress)" << "\n";
+        return 1;
+    }
+
+    if (!algorithm)
+    {
+        //Missing algorithm
+        cout << "Missing argument: (-a <algorithm> | --algorithm <algorithm>)" << "\n";
+        return 1;
+    }
+
+    if (file_in.empty())
+    {
+        //Missing input file
+        cout << "Missing argument: (-i <file> | --input <file>)" << "\n";
+        return 1;
+    }
+
+    if (file_out.empty())
+    {
+        //Missing output file
+        cout << "Missing argument: (-o <file> | --output <file>)" << "\n";
+        return 1;
+    }
+
+    if (compress)
+        algorithm->compress_file(file_in, file_out);
     else
-    {
-        string operation = argv[1];
-        string algorithm = argv[2];
-        string file1 = argv[3];
-        string file2 = argv[4];
+        algorithm->decompress_file(file_in, file_out);
 
-        if (operation == "-c")
-        {
-            if (algorithm == "huffman")
-            {
-                Huffman* h = new Huffman();
-                h->compress_file(file1, file2);
-                h->~Huffman();
-            }
-            else if (algorithm == "lz77")
-            {
-                LZ77* lz77 = new LZ77();
-                lz77->compress_file(file1, file2);
-                lz77->~LZ77();
-            }
-            else
-            {
-                bad_argument(algorithm);
-
-                //Exit program
-                return 1;
-            }
-        }
-        else if (operation == "-d")
-        {
-            if (algorithm == "huffman")
-            {
-                Huffman* h = new Huffman();
-                h->decompress_file(file1, file2);
-                h->~Huffman();
-            }
-            else if (algorithm == "lz77")
-            {
-                LZ77* lz77 = new LZ77();
-                lz77->decompress_file(file1, file2);
-                lz77->~LZ77();
-            }
-            else
-            {
-                bad_argument(algorithm);
-
-                //Exit program
-                return 1;
-            }
-        }
-        else
-        {
-            bad_argument(operation);
-
-            //Exit program
-            return 1;
-        }
-    }
+    delete algorithm;
 
     //Exit program
     return 0;
-}
-
-void bad_argument(string s)
-{
-    cout << "Bad argument: " << s << "\r\n";
 }

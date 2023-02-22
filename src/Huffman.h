@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CompressionAlgorithm.h"
 #include "Node.h"
 #include "HuffmanCodebook.h"
 
@@ -8,7 +9,7 @@
 
 using namespace std;
 
-class Huffman
+class Huffman : public CompressionAlgorithm
 {
 public:
     /*
