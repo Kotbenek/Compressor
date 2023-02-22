@@ -9,14 +9,12 @@
 #include <cstring>
 #include <getopt.h>
 
-using namespace std;
-
 int main(int argc, char** argv)
 {
     int compress = -1;
     CompressionAlgorithm* algorithm = NULL;
-    string file_in;
-    string file_out;
+    std::string file_in;
+    std::string file_out;
 
     int c;
 
@@ -60,7 +58,7 @@ int main(int argc, char** argv)
                     algorithm = new LZ77();
                     break;
                 }
-                cout << "Algorithm not supported: " << optarg << "\n";
+                std::cout << "Algorithm not supported: " << optarg << "\n";
                 return 1;
             case 'i':
                 //Input file
@@ -72,23 +70,23 @@ int main(int argc, char** argv)
                 break;
             case 'h':
                 //Help
-                cout << "\n"
-                     << "Usage: compressor "
-                     << "(-c | --compress | -d | --decompress) "
-                     << "(-a <algorithm> | --algorithm <algorithm>) "
-                     << "(-i <file> | --input <file>) "
-                     << "(-o <file> | --output <file>)" << "\n"
-                     << "\n"
-                     << "-c, --compress                            Compress file" << "\n"
-                     << "-d, --decompress                          Decompress file" << "\n"
-                     << "-a <algorithm>, --algorithm <algorithm>   Algorithm to use" << "\n"
-                     << "-i <file>, --input <file>                 Input file" << "\n"
-                     << "-o <file>, --output <file>                Output file" << "\n"
-                     << "\n"
-                     << "Supported algorithms:" << "\n"
-                     << "huffman  Canonical Huffman" << "\n"
-                     << "lz77     Lempel-Ziv 77" << "\n"
-                     << "\n";
+                std::cout << "\n"
+                          << "Usage: compressor "
+                          << "(-c | --compress | -d | --decompress) "
+                          << "(-a <algorithm> | --algorithm <algorithm>) "
+                          << "(-i <file> | --input <file>) "
+                          << "(-o <file> | --output <file>)" << "\n"
+                          << "\n"
+                          << "-c, --compress                            Compress file" << "\n"
+                          << "-d, --decompress                          Decompress file" << "\n"
+                          << "-a <algorithm>, --algorithm <algorithm>   Algorithm to use" << "\n"
+                          << "-i <file>, --input <file>                 Input file" << "\n"
+                          << "-o <file>, --output <file>                Output file" << "\n"
+                          << "\n"
+                          << "Supported algorithms:" << "\n"
+                          << "huffman  Canonical Huffman" << "\n"
+                          << "lz77     Lempel-Ziv 77" << "\n"
+                          << "\n";
                 return 0;
             case '?':
                 //Unknown argument
@@ -101,28 +99,28 @@ int main(int argc, char** argv)
     if (compress == -1)
     {
         //Missing operation
-        cout << "Missing argument: (-c | --compress | -d | --decompress)" << "\n";
+        std::cout << "Missing argument: (-c | --compress | -d | --decompress)" << "\n";
         return 1;
     }
 
     if (!algorithm)
     {
         //Missing algorithm
-        cout << "Missing argument: (-a <algorithm> | --algorithm <algorithm>)" << "\n";
+        std::cout << "Missing argument: (-a <algorithm> | --algorithm <algorithm>)" << "\n";
         return 1;
     }
 
     if (file_in.empty())
     {
         //Missing input file
-        cout << "Missing argument: (-i <file> | --input <file>)" << "\n";
+        std::cout << "Missing argument: (-i <file> | --input <file>)" << "\n";
         return 1;
     }
 
     if (file_out.empty())
     {
         //Missing output file
-        cout << "Missing argument: (-o <file> | --output <file>)" << "\n";
+        std::cout << "Missing argument: (-o <file> | --output <file>)" << "\n";
         return 1;
     }
 

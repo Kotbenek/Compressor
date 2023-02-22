@@ -10,12 +10,10 @@
 #include <bitset>
 #include <fstream>
 
-using namespace std;
-
-void Huffman::count_occurences(string file)
+void Huffman::count_occurences(std::string file)
 {
     //Count byte occurences in a file
-    ifstream fs(file, ifstream::binary);
+    std::ifstream fs(file, std::ifstream::binary);
     char* buffer = new char[BUFFER_SIZE];
 
     while (fs.good())
@@ -48,7 +46,7 @@ void Huffman::construct_tree()
         if (a->occurences == b->occurences) return a->id > b->id;
         return false;
     };
-    priority_queue<Node*, vector<Node*>, decltype(comparator)> queue(comparator);
+    std::priority_queue<Node*, std::vector<Node*>, decltype(comparator)> queue(comparator);
 
     //Fill priority queue with data
     for (uint16_t i = 0; i < 256; i++)
@@ -145,15 +143,15 @@ void Huffman::create_canonical_codebook()
     }
 }
 
-void Huffman::read_canonical_codebook(string file)
+void Huffman::read_canonical_codebook(std::string file)
 {
     //Prepare input stream
-    ifstream fs(file, ifstream::binary);
+    std::ifstream fs(file, std::ifstream::binary);
     char* buffer = new char[BUFFER_SIZE];
 
     if (!fs.good())
     {
-        cout << "Input file error";
+        std::cout << "Input file error";
         return;
     }
 
@@ -229,12 +227,12 @@ void Huffman::read_canonical_codebook(string file)
     fs.close();
 }
 
-void Huffman::compress(string file_in, string file_out)
+void Huffman::compress(std::string file_in, std::string file_out)
 {
     //Prepare input and output streams
-    ifstream fs_in(file_in, ifstream::binary);
+    std::ifstream fs_in(file_in, std::ifstream::binary);
     char* buffer = new char[BUFFER_SIZE];
-    ofstream fs_out(file_out, ofstream::binary);
+    std::ofstream fs_out(file_out, std::ofstream::binary);
 
     //Prepare file header
     uint8_t dictionary_size = codebook->size & 0xFF;
@@ -330,12 +328,12 @@ void Huffman::compress(string file_in, string file_out)
     fs_out.close();
 }
 
-void Huffman::decompress(string file_in, string file_out)
+void Huffman::decompress(std::string file_in, std::string file_out)
 {
     //Prepare input and output streams
-    ifstream fs_in(file_in, ifstream::binary);
+    std::ifstream fs_in(file_in, std::ifstream::binary);
     char* buffer = new char[BUFFER_SIZE];
-    ofstream fs_out(file_out, ofstream::binary);
+    std::ofstream fs_out(file_out, std::ofstream::binary);
 
     //Skip to data
     fs_in.read(buffer, compressed_data_starts_at);
@@ -381,7 +379,7 @@ void Huffman::decompress(string file_in, string file_out)
     fs_out.close();
 }
 
-void Huffman::compress_file(string file_in, string file_out)
+void Huffman::compress_file(std::string file_in, std::string file_out)
 {
     count_occurences(file_in);
     sort_nodes();
@@ -391,7 +389,7 @@ void Huffman::compress_file(string file_in, string file_out)
     compress(file_in, file_out);
 }
 
-void Huffman::decompress_file(string file_in, string file_out)
+void Huffman::decompress_file(std::string file_in, std::string file_out)
 {
     read_canonical_codebook(file_in);
     decompress(file_in, file_out);

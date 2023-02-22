@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-using namespace std;
-
 HuffmanCodebook::HuffmanCodebook(uint16_t size)
 {
     this->size = size;

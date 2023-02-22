@@ -2,11 +2,11 @@
 
 #include <fstream>
 
-void LZ77::compress_file(string file_in, string file_out)
+void LZ77::compress_file(std::string file_in, std::string file_out)
 {
     //Prepare input and output streams
-    ifstream fs_in(file_in, ifstream::binary);
-    ofstream fs_out(file_out, ofstream::binary);
+    std::ifstream fs_in(file_in, std::ifstream::binary);
+    std::ofstream fs_out(file_out, std::ofstream::binary);
 
     //Prepare flag - is the end of input file reached
     bool input_file_end_reached = false;
@@ -95,11 +95,11 @@ void LZ77::compress_file(string file_in, string file_out)
     fs_out.close();
 }
 
-void LZ77::decompress_file(string file_in, string file_out)
+void LZ77::decompress_file(std::string file_in, std::string file_out)
 {
     //Prepare input and output streams
-    ifstream fs_in(file_in, ifstream::binary);
-    ofstream fs_out(file_out, ofstream::binary);
+    std::ifstream fs_in(file_in, std::ifstream::binary);
+    std::ofstream fs_out(file_out, std::ofstream::binary);
 
     //Prepare buffer for reading triples
     char* triple_buffer = new char[4];
@@ -176,7 +176,7 @@ void LZ77::decompress_file(string file_in, string file_out)
     fs_out.close();
 }
 
-int32_t LZ77::read_input_file(ifstream &fs_in, uint32_t length)
+int32_t LZ77::read_input_file(std::ifstream &fs_in, uint32_t length)
 {
     //Case: reading to the middle of the buffer
     if (write_pointer + length < BUFFER_SIZE)
@@ -233,7 +233,7 @@ char LZ77::read_buffer_look_ahead(uint32_t position)
     return buffer[(read_pointer + position) - ((read_pointer + position) >= BUFFER_SIZE) * BUFFER_SIZE];
 }
 
-void LZ77::write_triple(ofstream &fs_out, uint16_t distance, uint8_t length, uint8_t next_byte)
+void LZ77::write_triple(std::ofstream &fs_out, uint16_t distance, uint8_t length, uint8_t next_byte)
 {
     fs_out << (uint8_t)((distance >>  8) & 0xFF);
     fs_out << (uint8_t)((distance >>  0) & 0xFF);
@@ -243,7 +243,7 @@ void LZ77::write_triple(ofstream &fs_out, uint16_t distance, uint8_t length, uin
     fs_out << next_byte;
 }
 
-int32_t LZ77::read_triple(ifstream &fs_in, char* buffer, uint16_t* distance, uint8_t* length, uint8_t* next_byte)
+int32_t LZ77::read_triple(std::ifstream &fs_in, char* buffer, uint16_t* distance, uint8_t* length, uint8_t* next_byte)
 {
     //Note: Minimum buffer size is 4 bytes
     fs_in.read(buffer, 4);

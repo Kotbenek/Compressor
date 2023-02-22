@@ -7,8 +7,6 @@
 #include <string>
 #include <cstdint>
 
-using namespace std;
-
 class Huffman : public CompressionAlgorithm
 {
 public:
@@ -20,8 +18,8 @@ public:
     [codeword values sorted in increasing order by codeword length and then by codeword value] (multiple 8-bit values)
     [compressed data]
     */
-    void compress_file(string file_in, string file_out);
-    void decompress_file(string file_in, string file_out);
+    void compress_file(std::string file_in, std::string file_out);
+    void decompress_file(std::string file_in, std::string file_out);
 
     Huffman();
     ~Huffman();
@@ -37,13 +35,13 @@ private:
 
     HuffmanCodebook* codebook;
 
-    void count_occurences(string file);
+    void count_occurences(std::string file);
     void sort_nodes();
     void construct_tree();
     void create_codebook();
     void create_canonical_codebook();
-    void read_canonical_codebook(string file);
+    void read_canonical_codebook(std::string file);
 
-    void compress(string file_in, string file_out);
-    void decompress(string file_in, string file_out);
+    void compress(std::string file_in, std::string file_out);
+    void decompress(std::string file_in, std::string file_out);
 };

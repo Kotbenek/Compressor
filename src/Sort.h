@@ -5,8 +5,6 @@
 
 #include <cstdint>
 
-using namespace std;
-
 class Sort
 {
 public:
