@@ -46,15 +46,15 @@ test_compress_decompress()
 {
     local ARG1
     local ARG2
-    
+
     ARG1=${TESTS_DIR}/$(basename "$2")."$1"
     ARG2=${TESTS_DIR}/$(basename "$2").decompressed
-    
+
     ./bin/compressor "-c" "-a" "$1" "-i" "$2" "-o" "${ARG1}"
     ./bin/compressor "-d" "-a" "$1" "-i" "${ARG1}" "-o" "${ARG2}"
-    
+
     assert_equal "$(sha256sum "$2" | cut -d ' ' -f 1)" "$(sha256sum "${ARG2}" | cut -d ' ' -f 1)"
-    
+
     rm "${ARG1}"
     rm "${ARG2}"
 }
@@ -91,7 +91,7 @@ for a in "${ALGORITHMS[@]}"; do
         print_test_init "$a\ttext file\t$(basename "$f")"
         test_compress_decompress "$a" "$f"
     done
-    
+
     # Binary files
     for f in "${BIN_FILES[@]}"; do
         print_test_init "$a\tbinary file\t$(basename "$f")"
