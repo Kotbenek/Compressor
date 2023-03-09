@@ -151,7 +151,7 @@ void Huffman::read_canonical_codebook(std::string file)
 
     if (!fs.good())
     {
-        std::cout << "Input file error";
+        std::cout << "Input file error" << "\n";
         return;
     }
 
