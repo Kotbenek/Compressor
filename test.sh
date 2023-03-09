@@ -84,6 +84,11 @@ FILE="${TESTS_DIR}/random_256K"
 head -c 256KB /dev/urandom > ${FILE}
 BIN_FILES+=("${FILE}")
 
+# Prepare additional text file
+FILE="${TESTS_DIR}/repeated_single_char"
+echo -n "AAAAAAAAAA" > ${FILE}
+TXT_FILES+=("${FILE}")
+
 # Run tests
 for a in "${ALGORITHMS[@]}"; do
     # Text files

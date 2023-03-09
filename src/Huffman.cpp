@@ -253,7 +253,7 @@ void Huffman::compress(std::string file_in, std::string file_out)
     }
 
     uint8_t number_of_symbols_with_codeword_length_highest = 31;
-    for (int8_t i = 31; i > 0; i--)
+    for (int8_t i = 31; i >= 0; i--)
     {
         if (number_of_symbols_with_codeword_length[i])
         {
