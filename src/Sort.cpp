@@ -4,11 +4,11 @@
 
 #include <algorithm>
 
-void Sort::sort_nodes_by_occurences(Node** a, uint16_t size)
+void Sort::sort_nodes_by_occurrences(Node** a, uint16_t size)
 {
     for (uint16_t i = 0; i < size - 1; i++)
         for (uint16_t j = 0; j < size - i - 1; j++)
-            if (a[j]->occurences < a[j + 1]->occurences)
+            if (a[j]->occurrences < a[j + 1]->occurrences)
                 std::swap(a[j], a[j + 1]);
 }
 

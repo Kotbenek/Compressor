@@ -4,7 +4,7 @@
 
 Node::Node(int32_t id, bool is_leaf_node)
 {
-    this->occurences = 0;
+    this->occurrences = 0;
     this->id = id;
     this->is_leaf_node = is_leaf_node;
     this->left = NULL;

@@ -6,7 +6,7 @@ class Node
 {
 public:
     int32_t id;
-    uint64_t occurences;
+    uint64_t occurrences;
     bool is_leaf_node;
     Node* left;
     Node* right;

@@ -35,7 +35,7 @@ private:
 
     HuffmanCodebook* codebook;
 
-    void count_occurences(std::string file);
+    void count_occurrences(std::string file);
     void sort_nodes();
     void construct_tree();
     void create_codebook();

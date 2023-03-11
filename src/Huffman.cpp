@@ -10,9 +10,9 @@
 #include <bitset>
 #include <fstream>
 
-void Huffman::count_occurences(std::string file)
+void Huffman::count_occurrences(std::string file)
 {
-    //Count byte occurences in a file
+    //Count byte occurrences in a file
     std::ifstream fs(file, std::ifstream::binary);
     char* buffer = new char[BUFFER_SIZE];
 
@@ -23,7 +23,7 @@ void Huffman::count_occurences(std::string file)
 
         for (int32_t i = 0; i < bytes_read; i++)
         {
-            nodes[(uint8_t)buffer[i]]->occurences++;
+            nodes[(uint8_t)buffer[i]]->occurrences++;
         }
     }
 
@@ -33,17 +33,17 @@ void Huffman::count_occurences(std::string file)
 
 void Huffman::sort_nodes()
 {
-    //Sort nodes descending by occurences
-    Sort::sort_nodes_by_occurences(nodes, 256);
+    //Sort nodes descending by occurrences
+    Sort::sort_nodes_by_occurrences(nodes, 256);
 }
 
 void Huffman::construct_tree()
 {
-    //Create priority queue with custom comparator (sort by occurences ascending, then by id ascending)
+    //Create priority queue with custom comparator (sort by occurrences ascending, then by id ascending)
     auto comparator = []( Node* a, Node* b )
     {
-        if (a->occurences > b->occurences) return true;
-        if (a->occurences == b->occurences) return a->id > b->id;
+        if (a->occurrences > b->occurrences) return true;
+        if (a->occurrences == b->occurrences) return a->id > b->id;
         return false;
     };
     std::priority_queue<Node*, std::vector<Node*>, decltype(comparator)> queue(comparator);
@@ -51,7 +51,7 @@ void Huffman::construct_tree()
     //Fill priority queue with data
     for (uint16_t i = 0; i < 256; i++)
     {
-        if (!nodes[i]->occurences) break;
+        if (!nodes[i]->occurrences) break;
         queue.push(nodes[i]);
     }
     leaf_nodes = queue.size();
@@ -69,7 +69,7 @@ void Huffman::construct_tree()
         Node* n = new Node(-1, false);
         n->left = n1;
         n->right = n2;
-        n->occurences = n1->occurences + n2->occurences;
+        n->occurrences = n1->occurrences + n2->occurrences;
         n1->parent = n;
         n2->parent = n;
 
@@ -240,9 +240,9 @@ void Huffman::compress(std::string file_in, std::string file_out)
     original_file_size = 0;
     for (uint16_t i = 0; i < 256; i++)
     {
-        if (!nodes[i]->occurences) break;
+        if (!nodes[i]->occurrences) break;
 
-        original_file_size += nodes[i]->occurences;
+        original_file_size += nodes[i]->occurrences;
     }
 
     uint8_t* number_of_symbols_with_codeword_length = new uint8_t[32];
@@ -381,7 +381,7 @@ void Huffman::decompress(std::string file_in, std::string file_out)
 
 void Huffman::compress_file(std::string file_in, std::string file_out)
 {
-    count_occurences(file_in);
+    count_occurrences(file_in);
     sort_nodes();
     construct_tree();
     create_codebook();
