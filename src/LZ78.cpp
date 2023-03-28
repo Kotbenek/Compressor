@@ -142,6 +142,9 @@ void LZ78::decompress_file(std::string file_in, std::string file_out)
             if (read_input_file(fs_in, BUFFER_SIZE - buffer_bytes_available() - 1))
                 input_file_end_reached = true;
     }
+
+    //Cleanup
+    delete dictionary;
 }
 
 int32_t LZ78::read_input_file(std::ifstream &fs_in, uint32_t length)
