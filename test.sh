@@ -63,7 +63,7 @@ test_compress_decompress()
 if [ -d "$TESTS_DIR" ]; then rm -rf "$TESTS_DIR"; fi
 mkdir "$TESTS_DIR"
 
-ALGORITHMS=("huffman" "lz77")
+ALGORITHMS=("huffman" "lz77" "lz78")
 TXT_FILES=("build_and_test.sh" "test.sh" "makefile")
 BIN_FILES=()
 

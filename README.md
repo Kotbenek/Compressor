@@ -17,6 +17,7 @@ Usage: compressor (-c | --compress | -d | --decompress) (-a <algorithm> | --algo
 Supported algorithms:
 huffman  Canonical Huffman
 lz77     Lempel-Ziv 77
+lz78     Lempel-Ziv 78
 ```
 
 ## Tests

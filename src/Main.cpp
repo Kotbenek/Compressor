@@ -3,6 +3,7 @@
 #include "CompressionAlgorithm.h"
 #include "Huffman.h"
 #include "LZ77.h"
+#include "LZ78.h"
 
 #include <string>
 #include <iostream>
@@ -58,6 +59,11 @@ int main(int argc, char** argv)
                     algorithm = new LZ77();
                     break;
                 }
+                if (strcmp(optarg, "lz78") == 0)
+                {
+                    algorithm = new LZ78();
+                    break;
+                }
                 std::cout << "Algorithm not supported: " << optarg << "\n";
                 return 1;
             case 'i':
@@ -86,6 +92,7 @@ int main(int argc, char** argv)
                           << "Supported algorithms:" << "\n"
                           << "huffman  Canonical Huffman" << "\n"
                           << "lz77     Lempel-Ziv 77" << "\n"
+                          << "lz78     Lempel-Ziv 78" << "\n"
                           << "\n";
                 return 0;
             case '?':
