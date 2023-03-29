@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-class HuffmanCodebook
+class Huffman_Codebook
 {
 public:
     uint16_t size;
@@ -10,6 +10,6 @@ public:
     uint8_t* codes_length;
     uint8_t* codes_value;
 
-    HuffmanCodebook(uint16_t size);
-    ~HuffmanCodebook();
+    Huffman_Codebook(uint16_t size);
+    ~Huffman_Codebook();
 };

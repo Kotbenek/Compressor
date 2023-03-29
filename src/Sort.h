@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Node.h"
-#include "HuffmanCodebook.h"
+#include "Huffman_Node.h"
+#include "Huffman_Codebook.h"
 
 #include <cstdint>
 
 class Sort
 {
 public:
-    static void sort_nodes_by_occurrences(Node** a, uint16_t size);
-    static void sort_huffman_codebook_by_length_then_by_value_ascending(HuffmanCodebook* hc);
+    static void sort_nodes_by_occurrences(Huffman_Node** a, uint16_t size);
+    static void sort_huffman_codebook_by_length_then_by_value_ascending(Huffman_Codebook* hc);
 };

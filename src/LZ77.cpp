@@ -89,10 +89,6 @@ void LZ77::compress_file(std::string file_in, std::string file_out)
         read_pointer++;
         read_pointer -= (read_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
     }
-
-    //Close files
-    fs_in.close();
-    fs_out.close();
 }
 
 void LZ77::decompress_file(std::string file_in, std::string file_out)
@@ -116,10 +112,6 @@ void LZ77::decompress_file(std::string file_in, std::string file_out)
 
         //Delete buffer for reading triples
         delete[] triple_buffer;
-
-        //Close files
-        fs_in.close();
-        fs_out.close();
 
         return;
     }
@@ -170,10 +162,6 @@ void LZ77::decompress_file(std::string file_in, std::string file_out)
 
     //Delete buffer for reading triples
     delete[] triple_buffer;
-
-    //Close files
-    fs_in.close();
-    fs_out.close();
 }
 
 int32_t LZ77::read_input_file(std::ifstream &fs_in, uint32_t length)

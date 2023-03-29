@@ -1,8 +1,8 @@
-#include "HuffmanCodebook.h"
+#include "Huffman_Codebook.h"
 
 #include <cstdint>
 
-HuffmanCodebook::HuffmanCodebook(uint16_t size)
+Huffman_Codebook::Huffman_Codebook(uint16_t size)
 {
     this->size = size;
     codes = new uint32_t[size];
@@ -10,7 +10,7 @@ HuffmanCodebook::HuffmanCodebook(uint16_t size)
     codes_value = new uint8_t[size];
 }
 
-HuffmanCodebook::~HuffmanCodebook()
+Huffman_Codebook::~Huffman_Codebook()
 {
     delete[] codes;
     delete[] codes_length;

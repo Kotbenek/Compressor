@@ -1,8 +1,8 @@
 #include "Huffman.h"
 
-#include "Node.h"
+#include "Huffman_Node.h"
 #include "Sort.h"
-#include "HuffmanCodebook.h"
+#include "Huffman_Codebook.h"
 
 #include <string>
 #include <iostream>
@@ -28,7 +28,6 @@ void Huffman::count_occurrences(std::string file)
     }
 
     delete[] buffer;
-    fs.close();
 }
 
 void Huffman::sort_nodes()
@@ -40,13 +39,13 @@ void Huffman::sort_nodes()
 void Huffman::construct_tree()
 {
     //Create priority queue with custom comparator (sort by occurrences ascending, then by id ascending)
-    auto comparator = []( Node* a, Node* b )
+    auto comparator = []( Huffman_Node* a, Huffman_Node* b )
     {
         if (a->occurrences > b->occurrences) return true;
         if (a->occurrences == b->occurrences) return a->id > b->id;
         return false;
     };
-    std::priority_queue<Node*, std::vector<Node*>, decltype(comparator)> queue(comparator);
+    std::priority_queue<Huffman_Node*, std::vector<Huffman_Node*>, decltype(comparator)> queue(comparator);
 
     //Fill priority queue with data
     for (uint16_t i = 0; i < 256; i++)
@@ -60,13 +59,13 @@ void Huffman::construct_tree()
     while (queue.size() > 1)
     {
         //Remove two nodes of lowest probability from queue
-        Node* n1 = queue.top();
+        Huffman_Node* n1 = queue.top();
         queue.pop();
-        Node* n2 = queue.top();
+        Huffman_Node* n2 = queue.top();
         queue.pop();
 
         //Create new node using acquired two nodes
-        Node* n = new Node(-1, false);
+        Huffman_Node* n = new Huffman_Node(-1, false);
         n->left = n1;
         n->right = n2;
         n->occurrences = n1->occurrences + n2->occurrences;
@@ -85,7 +84,7 @@ void Huffman::construct_tree()
 void Huffman::create_codebook()
 {
     //Initialize codebook
-    codebook = new HuffmanCodebook(leaf_nodes);
+    codebook = new Huffman_Codebook(leaf_nodes);
 
     //For every byte to encode
     for (uint16_t i = 0; i < leaf_nodes; i++)
@@ -97,7 +96,7 @@ void Huffman::create_codebook()
         uint8_t position = 31;
 
         //Get node
-        Node* n = nodes[i];
+        Huffman_Node* n = nodes[i];
 
         //Do while node is not root
         do
@@ -171,7 +170,7 @@ void Huffman::read_canonical_codebook(std::string file)
     original_file_size |= (((uint64_t)buffer[7] & 0xFF) <<  0);
 
     //Recreate codebook
-    codebook = new HuffmanCodebook(dictionary_size);
+    codebook = new Huffman_Codebook(dictionary_size);
 
     //Read number of symbols with codeword length of 1...n
     uint16_t dictionary_size_counter = 0;
@@ -224,7 +223,6 @@ void Huffman::read_canonical_codebook(std::string file)
 
     delete[] buffer;
     delete[] number_of_symbols_with_codeword_length;
-    fs.close();
 }
 
 void Huffman::compress(std::string file_in, std::string file_out)
@@ -324,8 +322,6 @@ void Huffman::compress(std::string file_in, std::string file_out)
 
     delete[] buffer;
     delete[] number_of_symbols_with_codeword_length;
-    fs_in.close();
-    fs_out.close();
 }
 
 void Huffman::decompress(std::string file_in, std::string file_out)
@@ -367,7 +363,6 @@ void Huffman::decompress(std::string file_in, std::string file_out)
                             k = codebook->size;
                             j = -1;
                             i = bytes_read;
-                            fs_in.close();
                         }
                     }
                 }
@@ -376,7 +371,6 @@ void Huffman::decompress(std::string file_in, std::string file_out)
     }
 
     delete[] buffer;
-    fs_out.close();
 }
 
 void Huffman::compress_file(std::string file_in, std::string file_out)
@@ -397,10 +391,10 @@ void Huffman::decompress_file(std::string file_in, std::string file_out)
 
 Huffman::Huffman()
 {
-    this->nodes = new Node*[256];
+    this->nodes = new Huffman_Node*[256];
     for (uint16_t i = 0; i < 256; i++)
     {
-        this->nodes[i] = new Node(i, true);
+        this->nodes[i] = new Huffman_Node(i, true);
     }
     this->leaf_nodes = 0;
     this->compressed_data_starts_at = 0;
@@ -411,7 +405,7 @@ Huffman::Huffman()
 
 Huffman::~Huffman()
 {
-    if (tree) tree->~Node();
+    delete tree;
     delete[] nodes;
-    if (codebook) delete codebook;
+    delete codebook;
 }

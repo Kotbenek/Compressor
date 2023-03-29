@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CompressionAlgorithm.h"
-#include "Node.h"
-#include "HuffmanCodebook.h"
+#include "Huffman_Node.h"
+#include "Huffman_Codebook.h"
 
 #include <string>
 #include <cstdint>
@@ -27,13 +27,13 @@ public:
 private:
     const int BUFFER_SIZE = 4096;
 
-    Node** nodes;
-    Node* tree;
+    Huffman_Node** nodes;
+    Huffman_Node* tree;
     uint16_t leaf_nodes;
     uint16_t compressed_data_starts_at;
     uint64_t original_file_size;
 
-    HuffmanCodebook* codebook;
+    Huffman_Codebook* codebook;
 
     void count_occurrences(std::string file);
     void sort_nodes();

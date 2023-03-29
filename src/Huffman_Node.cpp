@@ -1,8 +1,8 @@
-#include "Node.h"
+#include "Huffman_Node.h"
 
 #include <cstddef>
 
-Node::Node(int32_t id, bool is_leaf_node)
+Huffman_Node::Huffman_Node(int32_t id, bool is_leaf_node)
 {
     this->occurrences = 0;
     this->id = id;
@@ -12,7 +12,7 @@ Node::Node(int32_t id, bool is_leaf_node)
     this->parent = NULL;
 }
 
-Node::~Node()
+Huffman_Node::~Huffman_Node()
 {
     if (this->left) delete this->left;
     if (this->right) delete this->right;
