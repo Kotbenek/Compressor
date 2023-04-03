@@ -11,9 +11,11 @@ void LZ78::compress_file(std::string file_in, std::string file_out)
     //Create dictionary root entry (empty string)
     LZ78_Node* dictionary = new LZ78_Node(0, 0);
 
-    std::vector<LZ78_Tuple*> output_data;
     bool last_tuple_denormalized = false;
     bool input_file_end_reached = false;
+
+    uint8_t data_out = 0;
+    int8_t data_out_position = 7;
 
     //Read the first chunk of file
     if (read_input_file(fs_in, BUFFER_SIZE - 1)) input_file_end_reached = true;
@@ -27,56 +29,40 @@ void LZ78::compress_file(std::string file_in, std::string file_out)
             if (read_input_file(fs_in, BUFFER_SIZE - buffer_bytes_available() - 1))
                 input_file_end_reached = true;
 
-        output_data.push_back(tuple);
+        for (int8_t i = bits_per_dictionary_id() - 1; i >= 0; i--)
+        {
+            data_out |= (((tuple->id >> i) & 0x01) << (data_out_position--));
+
+            if (data_out_position < 0)
+            {
+                fs_out << data_out;
+                data_out = 0;
+                data_out_position = 7;
+            }
+        }
+
+        if (!last_tuple_denormalized)
+        {
+            for (int8_t i = 7; i >= 0; i--)
+            {
+                data_out |= (((tuple->token >> i) & 0x01) << (data_out_position--));
+
+                if (data_out_position < 0)
+                {
+                    fs_out << data_out;
+                    data_out = 0;
+                    data_out_position = 7;
+                }
+            }
+        }
     }
 
-    //Find out how many bits are needed for tuple id
-    uint32_t highest_used_tuple_id = find_highest_used_tuple_id(output_data);
-    void (*write_tuple)(std::ofstream &fs_out, LZ78_Tuple* tuple);
-
-    if (highest_used_tuple_id < 256)
-    {
-        fs_out << (uint8_t)8;
-        write_tuple = &write_tuple_8bit_id;
-    }
-    else if (highest_used_tuple_id < 65536)
-    {
-        fs_out << (uint8_t)16;
-        write_tuple = &write_tuple_16bit_id;
-    }
-    else if (highest_used_tuple_id < 16777216)
-    {
-        fs_out << (uint8_t)24;
-        write_tuple = &write_tuple_24bit_id;
-    }
-    else
-    {
-        fs_out << (uint8_t)32;
-        write_tuple = &write_tuple_32bit_id;
-    }
-
-    for (uint64_t i = 0; i < output_data.size() - 1; i++)
-        write_tuple(fs_out, output_data[i]);
-
-    if (last_tuple_denormalized)
-    {
-        if (highest_used_tuple_id < 256)
-            write_8bit_id(fs_out, output_data[output_data.size() - 1]);
-        else if (highest_used_tuple_id < 65536)
-            write_16bit_id(fs_out, output_data[output_data.size() - 1]);
-        else if (highest_used_tuple_id < 16777216)
-            write_24bit_id(fs_out, output_data[output_data.size() - 1]);
-        else
-            write_32bit_id(fs_out, output_data[output_data.size() - 1]);
-    }
-    else
-        write_tuple(fs_out, output_data[output_data.size() - 1]);
+    //If there is any leftover data, write it to the output file
+    if (data_out_position != 7)
+        fs_out << data_out;
 
     //Cleanup
     delete dictionary;
-    for (uint64_t i = 0; i < output_data.size(); i++)
-        delete output_data[i];
-    std::vector<LZ78_Tuple*>().swap(output_data);
 }
 
 LZ78_Tuple* LZ78::build_tuple(LZ78_Node* current_node, bool *denormalized)
@@ -117,19 +103,57 @@ void LZ78::decompress_file(std::string file_in, std::string file_out)
     bool last_tuple_denormalized = false;
     bool input_file_end_reached = false;
 
-    uint8_t dictionary_index_size;
-    fs_in >> dictionary_index_size;
-
     //Read the first chunk of file
     if (read_input_file(fs_in, BUFFER_SIZE - 1)) input_file_end_reached = true;
 
-    while (buffer_bytes_available() > 0)
+    uint8_t buf = read_buffer();
+    uint8_t bits_read = 0;
+
+    dictionary_index = 1;
+
+    while (buffer_bytes_available() > 0 || bits_read < 8)
     {
-        LZ78_Tuple* tuple = read_tuple(dictionary_index_size, &last_tuple_denormalized);
+        LZ78_Tuple* tuple = new LZ78_Tuple(0, 0);
+
+        for (int8_t i = bits_per_dictionary_id() - 1; i >= 0; i--)
+        {
+            tuple->id <<= 1;
+            tuple->id |= ((buf >> (7 - bits_read)) & 0x01);
+            bits_read++;
+
+            if (bits_read == 8)
+            {
+                if (buffer_bytes_available() == 0)
+                {
+                    last_tuple_denormalized = true;
+                    break;
+                }
+                buf = read_buffer();
+                bits_read = 0;
+            }
+        }
+        for (int8_t i = 7; i >= 0; i--)
+        {
+            tuple->token <<= 1;
+            tuple->token |= ((buf >> (7 - bits_read)) & 0x01);
+            bits_read++;
+
+            if (bits_read == 8)
+            {
+                if (buffer_bytes_available() == 0)
+                {
+                    if (i > 0)
+                        last_tuple_denormalized = true;
+                    break;
+                }
+                buf = read_buffer();
+                bits_read = 0;
+            }
+        }
 
         //Traverse dictionary depth-first, saving the path; append new node to found entry
         std::vector<uint8_t> path;
-        find_dictionary_entry(tuple->id, dictionary, &path)->leaves.push_back(new LZ78_Node(++dictionary_index, tuple->token));
+        find_dictionary_entry(tuple->id, dictionary, &path)->leaves.push_back(new LZ78_Node(dictionary_index++, tuple->token));
 
         //Append path and token to output
         for (uint64_t i = 0; i < path.size(); i++)
@@ -205,19 +229,6 @@ uint32_t LZ78::buffer_bytes_available()
     return (BUFFER_SIZE + write_pointer - read_pointer) - ((BUFFER_SIZE + write_pointer - read_pointer) >= BUFFER_SIZE) * BUFFER_SIZE;
 }
 
-uint32_t LZ78::find_highest_used_tuple_id(std::vector<LZ78_Tuple*> output_data)
-{
-    uint32_t highest = 0;
-
-    for (uint64_t i = 0; i < output_data.size(); i++)
-    {
-        if (output_data[i]->id > highest)
-            highest = output_data[i]->id;
-    }
-
-    return highest;
-}
-
 LZ78_Node* LZ78::find_dictionary_entry(uint32_t id, LZ78_Node* dictionary, std::vector<uint8_t>* path)
 {
     //Traverse dictionary depth-first, saving the path; return when id is found
@@ -242,146 +253,14 @@ LZ78_Node* LZ78::find_dictionary_entry(uint32_t id, LZ78_Node* dictionary, std::
     return NULL;
 }
 
-void LZ78::write_tuple_8bit_id(std::ofstream &fs_out, LZ78_Tuple* tuple)
+uint8_t LZ78::bits_per_dictionary_id()
 {
-    write_8bit_id(fs_out, tuple);
-    fs_out << tuple->token;
-}
+    uint32_t index = dictionary_index;
+    uint32_t result = 1;
 
-void LZ78::write_tuple_16bit_id(std::ofstream &fs_out, LZ78_Tuple* tuple)
-{
-    write_16bit_id(fs_out, tuple);
-    fs_out << tuple->token;
-}
+    while (index >>= 1) result++;
 
-void LZ78::write_tuple_24bit_id(std::ofstream &fs_out, LZ78_Tuple* tuple)
-{
-    write_24bit_id(fs_out, tuple);
-    fs_out << tuple->token;
-}
-
-void LZ78::write_tuple_32bit_id(std::ofstream &fs_out, LZ78_Tuple* tuple)
-{
-    write_32bit_id(fs_out, tuple);
-    fs_out << tuple->token;
-}
-
-void LZ78::write_8bit_id(std::ofstream &fs_out, LZ78_Tuple* tuple)
-{
-    fs_out << (uint8_t)tuple->id;
-}
-
-void LZ78::write_16bit_id(std::ofstream &fs_out, LZ78_Tuple* tuple)
-{
-    fs_out << (uint8_t)(tuple->id >> 8);
-    fs_out << (uint8_t)(tuple->id >> 0);
-}
-
-void LZ78::write_24bit_id(std::ofstream &fs_out, LZ78_Tuple* tuple)
-{
-    fs_out << (uint8_t)(tuple->id >> 16);
-    fs_out << (uint8_t)(tuple->id >> 8);
-    fs_out << (uint8_t)(tuple->id >> 0);
-}
-
-void LZ78::write_32bit_id(std::ofstream &fs_out, LZ78_Tuple* tuple)
-{
-    fs_out << (uint8_t)(tuple->id >> 24);
-    fs_out << (uint8_t)(tuple->id >> 16);
-    fs_out << (uint8_t)(tuple->id >> 8);
-    fs_out << (uint8_t)(tuple->id >> 0);
-}
-
-LZ78_Tuple* LZ78::read_tuple(uint8_t dictionary_index_size, bool* denormalized)
-{
-    switch (dictionary_index_size)
-    {
-        case 8:
-            return read_tuple_8bit_id(denormalized);
-        case 16:
-            return read_tuple_16bit_id(denormalized);
-        case 24:
-            return read_tuple_24bit_id(denormalized);
-        case 32:
-            return read_tuple_32bit_id(denormalized);
-        default:
-            std::cout << "Incorrect dictionary index size." << "\n";
-            return NULL;
-    }
-}
-
-LZ78_Tuple* LZ78::read_tuple_8bit_id(bool* denormalized)
-{
-    LZ78_Tuple* tuple = new LZ78_Tuple();
-
-    tuple->id = read_buffer();
-
-    if (buffer_bytes_available() > 0)
-        tuple->token = read_buffer();
-    else
-        *denormalized = true;
-
-    return tuple;
-}
-
-LZ78_Tuple* LZ78::read_tuple_16bit_id(bool* denormalized)
-{
-    LZ78_Tuple* tuple = new LZ78_Tuple();
-    uint8_t buf;
-
-    buf = read_buffer();
-    tuple->id = (uint32_t)buf << 8;
-    buf = read_buffer();
-    tuple->id |= buf;
-
-    if (buffer_bytes_available() > 0)
-        tuple->token = read_buffer();
-    else
-        *denormalized = true;
-
-    return tuple;
-}
-
-LZ78_Tuple* LZ78::read_tuple_24bit_id(bool* denormalized)
-{
-    LZ78_Tuple* tuple = new LZ78_Tuple();
-    uint8_t buf;
-
-    buf = read_buffer();
-    tuple->id = (uint32_t)buf << 16;
-    buf = read_buffer();
-    tuple->id |= (uint32_t)buf << 8;
-    buf = read_buffer();
-    tuple->id |= buf;
-
-    if (buffer_bytes_available() > 0)
-        tuple->token = read_buffer();
-    else
-        *denormalized = true;
-
-    return tuple;
-}
-
-LZ78_Tuple* LZ78::read_tuple_32bit_id(bool* denormalized)
-{
-    LZ78_Tuple* tuple = new LZ78_Tuple();
-    uint8_t buf;
-
-    buf = read_buffer();
-    tuple->id = (uint32_t)buf << 24;
-    buf = read_buffer();
-    tuple->id |= (uint32_t)buf << 16;
-    buf = read_buffer();
-    tuple->id |= (uint32_t)buf << 8;
-    buf = read_buffer();
-    tuple->id |= buf;
-
-    if (buffer_bytes_available() > 0)
-        tuple->token = read_buffer();
-    else
-        *denormalized = true;
-
-    return tuple;
+    return result;
 }
 
 LZ78::LZ78()
