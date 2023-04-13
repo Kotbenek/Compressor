@@ -4,6 +4,7 @@
 #include "Huffman.h"
 #include "LZ77.h"
 #include "LZ78.h"
+#include "LZW.h"
 
 #include <string>
 #include <iostream>
@@ -64,6 +65,11 @@ int main(int argc, char** argv)
                     algorithm = new LZ78();
                     break;
                 }
+                if (strcmp(optarg, "lzw") == 0)
+                {
+                    algorithm = new LZW();
+                    break;
+                }
                 std::cout << "Algorithm not supported: " << optarg << "\n";
                 return 1;
             case 'i':
@@ -93,6 +99,7 @@ int main(int argc, char** argv)
                           << "huffman  Canonical Huffman" << "\n"
                           << "lz77     Lempel-Ziv 77" << "\n"
                           << "lz78     Lempel-Ziv 78" << "\n"
+                          << "lzw      Lempel-Ziv-Welch" << "\n"
                           << "\n";
                 return 0;
             case '?':
