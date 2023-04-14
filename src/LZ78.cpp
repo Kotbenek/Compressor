@@ -71,6 +71,7 @@ LZ78_Tuple* LZ78::build_tuple(LZ78_Node* current_node, bool *denormalized)
     if (buffer_bytes_available() == 0)
     {
         *denormalized = true;
+        dictionary_index++;
         return new LZ78_Tuple(current_node->id, 0);
     }
 

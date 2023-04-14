@@ -9,22 +9,36 @@ RUNNING="[    ]"
 TESTS=0
 TESTS_PASSED=0
 
+PADDING="                                        "
+ALGORITHM_PADDING=10
+FILE_TYPE_PADDING=14
+
 # Printing functions
 print_test_init()
 {
-    echo -n -e "$RUNNING $1"
+    local algorithm
+    local file_type
+    local file_name
+
+    algorithm="$1"
+    algorithm="${algorithm:0:ALGORITHM_PADDING}${PADDING:0:$((ALGORITHM_PADDING - ${#algorithm}))}"
+    file_type="$2"
+    file_type="${file_type:0:FILE_TYPE_PADDING}${PADDING:0:$((FILE_TYPE_PADDING - ${#file_type}))}"
+    file_name="$3"
+
+    echo -n -e "${RUNNING} ${algorithm} ${file_type} ${file_name}"
 }
 
 print_test_pass()
 {
     echo -n -e "\r"
-    echo "$PASS"
+    echo "${PASS}"
 }
 
 print_test_fail()
 {
     echo -n -e "\r"
-    echo "$FAIL"
+    echo "${FAIL}"
 }
 
 # Testing functions
@@ -48,7 +62,7 @@ test_compress_decompress()
     local ARG2
 
     ARG1=${TESTS_DIR}/$(basename "$2")."$1"
-    ARG2=${TESTS_DIR}/$(basename "$2").decompressed
+    ARG2=${TESTS_DIR}/$(basename "$2")."$1".decompressed
 
     ./bin/compressor "-c" "-a" "$1" "-i" "$2" "-o" "${ARG1}"
     ./bin/compressor "-d" "-a" "$1" "-i" "${ARG1}" "-o" "${ARG2}"
@@ -60,8 +74,8 @@ test_compress_decompress()
 }
 
 # Prepare test directory
-if [ -d "$TESTS_DIR" ]; then rm -rf "$TESTS_DIR"; fi
-mkdir "$TESTS_DIR"
+if [ -d "${TESTS_DIR}" ]; then rm -rf "${TESTS_DIR}"; fi
+mkdir "${TESTS_DIR}"
 
 ALGORITHMS=("huffman" "lz77" "lz78" "lzw")
 TXT_FILES=("build_and_test.sh" "test.sh" "makefile")
@@ -84,28 +98,32 @@ FILE="${TESTS_DIR}/random_256K"
 head -c 256KB /dev/urandom > ${FILE}
 BIN_FILES+=("${FILE}")
 
-# Prepare additional text file
-FILE="${TESTS_DIR}/repeated_single_char"
-echo -n "AAAAAAAAAA" > ${FILE}
-TXT_FILES+=("${FILE}")
+# Prepare additional text files
+for i in {1..11}; do
+    FILE="${TESTS_DIR}/single_char_${i}"
+    for a in $( seq 1 "${i}" ); do
+        echo -n "A" >> ${FILE}
+    done
+    TXT_FILES+=("${FILE}")
+done
 
 # Run tests
 for a in "${ALGORITHMS[@]}"; do
     # Text files
     for f in "${TXT_FILES[@]}"; do
-        print_test_init "$a\ttext file\t$(basename "$f")"
-        test_compress_decompress "$a" "$f"
+        print_test_init "${a}" "text file" "$(basename "${f}")"
+        test_compress_decompress "${a}" "${f}"
     done
 
     # Binary files
     for f in "${BIN_FILES[@]}"; do
-        print_test_init "$a\tbinary file\t$(basename "$f")"
-        test_compress_decompress "$a" "$f"
+        print_test_init "${a}" "binary file" "$(basename "${f}")"
+        test_compress_decompress "${a}" "${f}"
     done
 done
 
 # Remove test directory
-rm -rf "$TESTS_DIR"
+rm -rf "${TESTS_DIR}"
 
 # Display test results
 echo "${TESTS_PASSED}/${TESTS} tests passed"
