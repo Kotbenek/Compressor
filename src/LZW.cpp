@@ -1,9 +1,19 @@
 #include "LZW.h"
 
 #include "LZW_Node.h"
+#include "Hash.h"
 
 #include <fstream>
 #include <vector>
+#include <unordered_map>
+
+struct FNV_1a_32b
+{
+    uint32_t operator()(const std::vector<uint8_t>& data) const
+    {
+        return Hash::FNV_1a_32b(data);
+    }
+};
 
 void LZW::compress_file(std::string file_in, std::string file_out)
 {
@@ -13,15 +23,11 @@ void LZW::compress_file(std::string file_in, std::string file_out)
     bool input_file_end_reached = false;
     bool last_index_to_write = false;
 
-    std::vector<LZW_Node*> dictionary;
+    std::unordered_map<std::vector<uint8_t>, uint32_t, FNV_1a_32b> dictionary;
 
     //Initialize dictionary
     for (uint16_t i = 0; i < 256; i++)
-    {
-        LZW_Node* node = new LZW_Node(i);
-        node->token.push_back(i);
-        dictionary.push_back(node);
-    }
+        dictionary.insert(std::pair<std::vector<uint8_t>, uint32_t>({(uint8_t)i}, i));
     dictionary_index = 256;
 
     uint8_t data_out = 0;
@@ -49,13 +55,9 @@ void LZW::compress_file(std::string file_in, std::string file_out)
 
             current_data.push_back(read_buffer());
 
-            for (uint32_t i = 0; i < dictionary.size(); i++)
-                if (current_data == dictionary[i]->token)
-                {
-                    index = i;
-                    last_found_index = i;
-                    break;
-                }
+            std::unordered_map<std::vector<uint8_t>, uint32_t, FNV_1a_32b>::iterator it = dictionary.find(current_data);
+            if (it != dictionary.end())
+                index = last_found_index = it->second;
         } while (index != -1);
 
         //Last byte of new entry is not encoded by last_found_index
@@ -82,9 +84,7 @@ void LZW::compress_file(std::string file_in, std::string file_out)
         }
 
         //Add new entry to dictionary
-        LZW_Node* entry = new LZW_Node(dictionary_index++);
-        entry->token = current_data;
-        dictionary.push_back(entry);
+        dictionary.insert(std::pair<std::vector<uint8_t>, uint32_t>(current_data, dictionary_index++));
 
         //Read next data chunk
         if (!input_file_end_reached)
@@ -95,11 +95,6 @@ void LZW::compress_file(std::string file_in, std::string file_out)
     //If there is any leftover data, write it to the output file
     if (data_out_position != 7)
         fs_out << data_out;
-
-    //Cleanup
-    for (uint32_t i = 0; i < dictionary.size(); i++)
-        delete dictionary[i];
-    std::vector<LZW_Node*>().swap(dictionary);
 }
 
 void LZW::decompress_file(std::string file_in, std::string file_out)
