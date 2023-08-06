@@ -38,7 +38,7 @@ int main(int argc, char** argv)
         if (c == -1)
             break;
 
-        switch(c)
+        switch (c)
         {
             case 'c':
                 //Compress
