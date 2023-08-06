@@ -83,24 +83,25 @@ int main(int argc, char** argv)
             case 'h':
                 //Help
                 std::cout << "\n"
-                          << "Usage: compressor "
-                          << "(-c | --compress | -d | --decompress) "
-                          << "(-a <algorithm> | --algorithm <algorithm>) "
-                          << "(-i <file> | --input <file>) "
-                          << "(-o <file> | --output <file>)" << "\n"
-                          << "\n"
-                          << "-c, --compress                            Compress file" << "\n"
-                          << "-d, --decompress                          Decompress file" << "\n"
-                          << "-a <algorithm>, --algorithm <algorithm>   Algorithm to use" << "\n"
-                          << "-i <file>, --input <file>                 Input file" << "\n"
-                          << "-o <file>, --output <file>                Output file" << "\n"
-                          << "\n"
-                          << "Supported algorithms:" << "\n"
-                          << "huffman  Canonical Huffman" << "\n"
-                          << "lz77     Lempel-Ziv 77" << "\n"
-                          << "lz78     Lempel-Ziv 78" << "\n"
-                          << "lzw      Lempel-Ziv-Welch" << "\n"
-                          << "\n";
+                             "Usage: compressor "
+                             "(-c | --compress | -d | --decompress) "
+                             "(-a <algorithm> | --algorithm <algorithm>) "
+                             "(-i <file> | --input <file>) "
+                             "(-o <file> | --output <file>)\n"
+                             "\n"
+                             "Options:\n"
+                             "-c, --compress                            Compress file\n"
+                             "-d, --decompress                          Decompress file\n"
+                             "-a <algorithm>, --algorithm <algorithm>   Algorithm to use\n"
+                             "-i <file>, --input <file>                 Input file\n"
+                             "-o <file>, --output <file>                Output file\n"
+                             "\n"
+                             "Supported algorithms:\n"
+                             "huffman  Canonical Huffman\n"
+                             "lz77     Lempel-Ziv 77\n"
+                             "lz78     Lempel-Ziv 78\n"
+                             "lzw      Lempel-Ziv-Welch\n"
+                             "\n";
                 return 0;
             case '?':
                 //Unknown argument
@@ -113,28 +114,28 @@ int main(int argc, char** argv)
     if (compress == -1)
     {
         //Missing operation
-        std::cout << "Missing argument: (-c | --compress | -d | --decompress)" << "\n";
+        std::cout << "Missing argument: (-c | --compress | -d | --decompress)\n";
         return 1;
     }
 
     if (!algorithm)
     {
         //Missing algorithm
-        std::cout << "Missing argument: (-a <algorithm> | --algorithm <algorithm>)" << "\n";
+        std::cout << "Missing argument: (-a <algorithm> | --algorithm <algorithm>)\n";
         return 1;
     }
 
     if (file_in.empty())
     {
         //Missing input file
-        std::cout << "Missing argument: (-i <file> | --input <file>)" << "\n";
+        std::cout << "Missing argument: (-i <file> | --input <file>)\n";
         return 1;
     }
 
     if (file_out.empty())
     {
         //Missing output file
-        std::cout << "Missing argument: (-o <file> | --output <file>)" << "\n";
+        std::cout << "Missing argument: (-o <file> | --output <file>)\n";
         return 1;
     }
 
