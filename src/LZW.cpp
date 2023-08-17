@@ -17,9 +17,8 @@ void LZW::compress_file(std::string file_in, std::string file_out)
     std::unordered_map<std::vector<uint8_t>, uint32_t, HashAlgorithm> dictionary;
 
     //Initialize dictionary
-    for (uint16_t i = 0; i < 256; i++)
-        dictionary.insert(std::pair<std::vector<uint8_t>, uint32_t>({(uint8_t)i}, i));
-    dictionary_index = 256;
+    for (dictionary_index = 0; dictionary_index < 256; dictionary_index++)
+        dictionary.insert(std::pair<std::vector<uint8_t>, uint32_t>({(uint8_t)dictionary_index}, dictionary_index));
 
     uint8_t data_out = 0;
     int8_t data_out_position = 7;
@@ -96,13 +95,12 @@ void LZW::decompress_file(std::string file_in, std::string file_out)
     std::vector<LZW_Node*> dictionary;
 
     //Initialize dictionary
-    for (uint16_t i = 0; i < 256; i++)
+    for (dictionary_index = 0; dictionary_index < 256; dictionary_index++)
     {
-        LZW_Node* node = new LZW_Node(i);
-        node->token.push_back(i);
+        LZW_Node* node = new LZW_Node(dictionary_index);
+        node->token.push_back(dictionary_index);
         dictionary.push_back(node);
     }
-    dictionary_index = 256;
 
     bool input_file_end_reached = false;
     bool is_data_valid = true;
