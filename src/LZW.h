@@ -2,6 +2,8 @@
 
 #include "CompressionAlgorithm.h"
 
+#include "Hash.h"
+
 #include <cstdint>
 #include <string>
 
@@ -35,4 +37,12 @@ private:
     uint32_t buffer_bytes_available();
 
     uint8_t bits_per_dictionary_id();
+
+    struct HashAlgorithm
+    {
+        uint32_t operator()(const std::vector<uint8_t>& data) const
+        {
+            return Hash::FNV_1a_32b(data);
+        }
+    };
 };

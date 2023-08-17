@@ -1,19 +1,10 @@
 #include "LZW.h"
 
 #include "LZW_Node.h"
-#include "Hash.h"
 
 #include <fstream>
 #include <vector>
 #include <unordered_map>
-
-struct FNV_1a_32b
-{
-    uint32_t operator()(const std::vector<uint8_t>& data) const
-    {
-        return Hash::FNV_1a_32b(data);
-    }
-};
 
 void LZW::compress_file(std::string file_in, std::string file_out)
 {
@@ -23,7 +14,7 @@ void LZW::compress_file(std::string file_in, std::string file_out)
     bool input_file_end_reached = false;
     bool last_index_to_write = false;
 
-    std::unordered_map<std::vector<uint8_t>, uint32_t, FNV_1a_32b> dictionary;
+    std::unordered_map<std::vector<uint8_t>, uint32_t, HashAlgorithm> dictionary;
 
     //Initialize dictionary
     for (uint16_t i = 0; i < 256; i++)
@@ -55,7 +46,7 @@ void LZW::compress_file(std::string file_in, std::string file_out)
 
             current_data.push_back(read_buffer());
 
-            std::unordered_map<std::vector<uint8_t>, uint32_t, FNV_1a_32b>::iterator it = dictionary.find(current_data);
+            std::unordered_map<std::vector<uint8_t>, uint32_t, HashAlgorithm>::iterator it = dictionary.find(current_data);
             if (it != dictionary.end())
                 index = last_found_index = it->second;
         } while (index != -1);
