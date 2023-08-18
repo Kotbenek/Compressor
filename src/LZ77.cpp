@@ -12,7 +12,8 @@ void LZ77::compress_file(std::string file_in, std::string file_out)
     bool input_file_end_reached = false;
 
     //Read the first chunk of file and fill the dictionary
-    if (read_input_file(fs_in, BUFFER_SIZE_LOOK_AHEAD)) input_file_end_reached = true;
+    if (read_input_file(fs_in, BUFFER_SIZE_LOOK_AHEAD))
+        input_file_end_reached = true;
 
     for (uint32_t i = 0; i < BUFFER_SIZE_DICTIONARY; i++)
     {
@@ -24,7 +25,9 @@ void LZ77::compress_file(std::string file_in, std::string file_out)
     write_triple(fs_out, 0, 0, buffer[read_pointer++]);
 
     //Read next byte
-    if (!input_file_end_reached) if (read_input_file(fs_in, 1)) input_file_end_reached = true;
+    if (!input_file_end_reached)
+        if (read_input_file(fs_in, 1))
+            input_file_end_reached = true;
 
     while (write_pointer != read_pointer)
     {
@@ -38,7 +41,8 @@ void LZ77::compress_file(std::string file_in, std::string file_out)
         {
             if (read_buffer_dictionary(i) == read_buffer_look_ahead(current_match_length))
             {
-                if (current_match_length == 0) current_match_position = i;
+                if (current_match_length == 0)
+                    current_match_position = i;
                 current_match_length++;
             }
             else
@@ -63,7 +67,9 @@ void LZ77::compress_file(std::string file_in, std::string file_out)
         }
 
         //Read next bytes
-        if (!input_file_end_reached) if (read_input_file(fs_in, best_match_length)) input_file_end_reached = true;
+        if (!input_file_end_reached)
+            if (read_input_file(fs_in, best_match_length))
+                input_file_end_reached = true;
 
         //Move read_pointer to new position
         read_pointer += best_match_length;
@@ -73,7 +79,8 @@ void LZ77::compress_file(std::string file_in, std::string file_out)
         if (best_match_length)
         {
             //Write triple - (distance, length, next_byte)
-            write_triple(fs_out, BUFFER_SIZE_DICTIONARY - best_match_position, best_match_length, buffer[read_pointer]);
+            write_triple(fs_out, BUFFER_SIZE_DICTIONARY - best_match_position, best_match_length,
+                         buffer[read_pointer]);
         }
         else
         {
@@ -83,7 +90,9 @@ void LZ77::compress_file(std::string file_in, std::string file_out)
         }
 
         //Read next byte
-        if (!input_file_end_reached) if (read_input_file(fs_in, 1)) input_file_end_reached = true;
+        if (!input_file_end_reached)
+            if (read_input_file(fs_in, 1))
+                input_file_end_reached = true;
 
         //Move read_pointer to new position
         read_pointer++;
@@ -130,7 +139,8 @@ void LZ77::decompress_file(std::string file_in, std::string file_out)
     while (true)
     {
         //Read triple
-        if (read_triple(fs_in, triple_buffer, &distance, &length, &next_byte)) break;
+        if (read_triple(fs_in, triple_buffer, &distance, &length, &next_byte))
+            break;
 
         //Decode triple
         if (distance == 0 && length == 0)
@@ -142,7 +152,8 @@ void LZ77::decompress_file(std::string file_in, std::string file_out)
         }
         else
         {
-            read_pointer = (write_pointer + BUFFER_SIZE - distance) - ((write_pointer + BUFFER_SIZE - distance) >= BUFFER_SIZE) * BUFFER_SIZE;
+            read_pointer = (write_pointer + BUFFER_SIZE - distance) -
+                           ((write_pointer + BUFFER_SIZE - distance) >= BUFFER_SIZE) * BUFFER_SIZE;
 
             for (uint32_t i = 0; i < length; i++)
             {
@@ -164,7 +175,7 @@ void LZ77::decompress_file(std::string file_in, std::string file_out)
     delete[] triple_buffer;
 }
 
-int32_t LZ77::read_input_file(std::ifstream &fs_in, uint32_t length)
+int32_t LZ77::read_input_file(std::ifstream& fs_in, uint32_t length)
 {
     //Case: reading to the middle of the buffer
     if (write_pointer + length < BUFFER_SIZE)
@@ -197,7 +208,8 @@ int32_t LZ77::read_input_file(std::ifstream &fs_in, uint32_t length)
         write_pointer += bytes_read;
         write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
 
-        if (write_pointer != 0) return bytes_read;
+        if (write_pointer != 0)
+            return bytes_read;
 
         fs_in.read(buffer, length - bytes_read);
 
@@ -212,32 +224,36 @@ int32_t LZ77::read_input_file(std::ifstream &fs_in, uint32_t length)
 char LZ77::read_buffer_dictionary(uint32_t position)
 {
     //Safe if (read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) < 2 * BUFFER_SIZE
-    return buffer[(read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) - ((read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) >= BUFFER_SIZE) * BUFFER_SIZE];
+    return buffer[(read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) -
+                  ((read_pointer + BUFFER_SIZE_LOOK_AHEAD + position) >= BUFFER_SIZE) *
+                      BUFFER_SIZE];
 }
 
 char LZ77::read_buffer_look_ahead(uint32_t position)
 {
     //Safe if (read_pointer + position) < 2 * BUFFER_SIZE
-    return buffer[(read_pointer + position) - ((read_pointer + position) >= BUFFER_SIZE) * BUFFER_SIZE];
+    return buffer[(read_pointer + position) -
+                  ((read_pointer + position) >= BUFFER_SIZE) * BUFFER_SIZE];
 }
 
-void LZ77::write_triple(std::ofstream &fs_out, uint16_t distance, uint8_t length, uint8_t next_byte)
+void LZ77::write_triple(std::ofstream& fs_out, uint16_t distance, uint8_t length, uint8_t next_byte)
 {
-    fs_out << (uint8_t)((distance >>  8) & 0xFF);
-    fs_out << (uint8_t)((distance >>  0) & 0xFF);
+    fs_out << (uint8_t)((distance >> 8) & 0xFF);
+    fs_out << (uint8_t)((distance >> 0) & 0xFF);
 
     fs_out << length;
 
     fs_out << next_byte;
 }
 
-int32_t LZ77::read_triple(std::ifstream &fs_in, char* buffer, uint16_t* distance, uint8_t* length, uint8_t* next_byte)
+int32_t LZ77::read_triple(std::ifstream& fs_in, char* buffer, uint16_t* distance, uint8_t* length,
+                          uint8_t* next_byte)
 {
     //Note: Minimum buffer size is 4 bytes
     fs_in.read(buffer, 4);
 
-    *distance = (((uint16_t)buffer[0] & 0xFF) <<  8);
-    *distance |= (((uint16_t)buffer[1] & 0xFF) <<  0);
+    *distance = (((uint16_t)buffer[0] & 0xFF) << 8);
+    *distance |= (((uint16_t)buffer[1] & 0xFF) << 0);
 
     *length = buffer[2];
 
@@ -249,7 +265,8 @@ int32_t LZ77::read_triple(std::ifstream &fs_in, char* buffer, uint16_t* distance
 uint32_t LZ77::buffer_bytes_available()
 {
     //Safe if (BUFFER_SIZE + write_pointer - read_pointer) < 2 * BUFFER_SIZE
-    return (BUFFER_SIZE + write_pointer - read_pointer) - ((BUFFER_SIZE + write_pointer - read_pointer) >= BUFFER_SIZE) * BUFFER_SIZE;
+    return (BUFFER_SIZE + write_pointer - read_pointer) -
+           ((BUFFER_SIZE + write_pointer - read_pointer) >= BUFFER_SIZE) * BUFFER_SIZE;
 }
 
 LZ77::LZ77()

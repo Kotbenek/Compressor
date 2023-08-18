@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CompressionAlgorithm.h"
-
 #include "Hash.h"
 
 #include <cstdint>
@@ -12,7 +11,10 @@ class LZW : public CompressionAlgorithm
 public:
     /*
     File structure:
-    Compressed data consists of dictionary indexes that are variable-width coded
+
+    [dictionary index]
+    (multiple variable-width values)
+
     Initial dictionary: All possible bytes (256 entries)
     Initial code width: 9 bits
     */
@@ -30,7 +32,7 @@ private:
 
     const uint32_t BUFFER_SIZE = 65536;
 
-    int32_t read_input_file(std::ifstream &fs_in, uint32_t length);
+    int32_t read_input_file(std::ifstream& fs_in, uint32_t length);
     char read_buffer();
     void unread_buffer();
 

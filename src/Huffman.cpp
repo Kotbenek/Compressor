@@ -1,14 +1,14 @@
 #include "Huffman.h"
 
+#include "Huffman_Codebook.h"
 #include "Huffman_Node.h"
 #include "Sort.h"
-#include "Huffman_Codebook.h"
 
-#include <string>
-#include <iostream>
-#include <queue>
 #include <bitset>
 #include <fstream>
+#include <iostream>
+#include <queue>
+#include <string>
 
 void Huffman::count_occurrences(std::string file)
 {
@@ -38,19 +38,24 @@ void Huffman::sort_nodes()
 
 void Huffman::construct_tree()
 {
-    //Create priority queue with custom comparator (sort by occurrences ascending, then by id ascending)
-    auto comparator = []( Huffman_Node* a, Huffman_Node* b )
+    //Create priority queue with custom comparator (sort by occurrences ascending, then by id
+    //ascending)
+    auto comparator = [](Huffman_Node* a, Huffman_Node* b)
     {
-        if (a->occurrences > b->occurrences) return true;
-        if (a->occurrences == b->occurrences) return a->id > b->id;
+        if (a->occurrences > b->occurrences)
+            return true;
+        if (a->occurrences == b->occurrences)
+            return a->id > b->id;
         return false;
     };
-    std::priority_queue<Huffman_Node*, std::vector<Huffman_Node*>, decltype(comparator)> queue(comparator);
+    std::priority_queue<Huffman_Node*, std::vector<Huffman_Node*>, decltype(comparator)> queue(
+        comparator);
 
     //Fill priority queue with data
     for (uint16_t i = 0; i < 256; i++)
     {
-        if (!nodes[i]->occurrences) break;
+        if (!nodes[i]->occurrences)
+            break;
         queue.push(nodes[i]);
     }
     leaf_nodes = queue.size();
@@ -105,15 +110,17 @@ void Huffman::create_codebook()
             codeword_length++;
 
             //If node is right leaf of parent, set bit at this position
-            if (!n->parent) break;
-            if (n->parent->right == n) codeword |= (1 << position);
+            if (!n->parent)
+                break;
+            if (n->parent->right == n)
+                codeword |= (1 << position);
 
             //Move position
             position--;
 
             //Move to parent
             n = n->parent;
-        } while(n->parent != NULL);
+        } while (n->parent != NULL);
 
         //Store the codeword in the codebook
         codebook->codes[i] = 0;
@@ -138,7 +145,8 @@ void Huffman::create_canonical_codebook()
     {
         //For each symbol starting from the second one, assign next binary number
         //If the codeword is longer than the previous one, append zeros (left shift)
-        codebook->codes[i] = (codebook->codes[i - 1] + 1) << (codebook->codes_length[i] - codebook->codes_length[i - 1]);
+        codebook->codes[i] = (codebook->codes[i - 1] + 1)
+                             << (codebook->codes_length[i] - codebook->codes_length[i - 1]);
     }
 }
 
@@ -150,7 +158,8 @@ void Huffman::read_canonical_codebook(std::string file)
 
     if (!fs.good())
     {
-        std::cout << "Input file error" << "\n";
+        std::cout << "Input file error"
+                  << "\n";
         return;
     }
 
@@ -166,8 +175,8 @@ void Huffman::read_canonical_codebook(std::string file)
     original_file_size |= (((uint64_t)buffer[3] & 0xFF) << 32);
     original_file_size |= (((uint64_t)buffer[4] & 0xFF) << 24);
     original_file_size |= (((uint64_t)buffer[5] & 0xFF) << 16);
-    original_file_size |= (((uint64_t)buffer[6] & 0xFF) <<  8);
-    original_file_size |= (((uint64_t)buffer[7] & 0xFF) <<  0);
+    original_file_size |= (((uint64_t)buffer[6] & 0xFF) << 8);
+    original_file_size |= (((uint64_t)buffer[7] & 0xFF) << 0);
 
     //Recreate codebook
     codebook = new Huffman_Codebook(dictionary_size);
@@ -175,7 +184,8 @@ void Huffman::read_canonical_codebook(std::string file)
     //Read number of symbols with codeword length of 1...n
     uint16_t dictionary_size_counter = 0;
     uint16_t* number_of_symbols_with_codeword_length = new uint16_t[32];
-    for (uint8_t i = 0; i < 32; i++) number_of_symbols_with_codeword_length[i] = 0;
+    for (uint8_t i = 0; i < 32; i++)
+        number_of_symbols_with_codeword_length[i] = 0;
     for (uint8_t i = 0; i < 32; i++)
     {
         fs.read(buffer, 1);
@@ -188,7 +198,8 @@ void Huffman::read_canonical_codebook(std::string file)
             break;
         }
     }
-    if (!dictionary_size_counter) number_of_symbols_with_codeword_length[7] = 256;
+    if (!dictionary_size_counter)
+        number_of_symbols_with_codeword_length[7] = 256;
 
     //Set codeword lengths
     for (uint16_t i = 0; i < dictionary_size; i++)
@@ -210,7 +221,8 @@ void Huffman::read_canonical_codebook(std::string file)
     {
         //For each symbol starting from the second one, assign next binary number
         //If the codeword is longer than the previous one, append zeros (left shift)
-        codebook->codes[i] = (codebook->codes[i - 1] + 1) << (codebook->codes_length[i] - codebook->codes_length[i - 1]);
+        codebook->codes[i] = (codebook->codes[i - 1] + 1)
+                             << (codebook->codes_length[i] - codebook->codes_length[i - 1]);
     }
 
     //Read codeword values
@@ -238,13 +250,15 @@ void Huffman::compress(std::string file_in, std::string file_out)
     original_file_size = 0;
     for (uint16_t i = 0; i < 256; i++)
     {
-        if (!nodes[i]->occurrences) break;
+        if (!nodes[i]->occurrences)
+            break;
 
         original_file_size += nodes[i]->occurrences;
     }
 
     uint8_t* number_of_symbols_with_codeword_length = new uint8_t[32];
-    for (uint8_t i = 0; i < 32; i++) number_of_symbols_with_codeword_length[i] = 0;
+    for (uint8_t i = 0; i < 32; i++)
+        number_of_symbols_with_codeword_length[i] = 0;
     for (uint16_t i = 0; i < codebook->size; i++)
     {
         number_of_symbols_with_codeword_length[codebook->codes_length[i] - 1]++;
@@ -268,8 +282,8 @@ void Huffman::compress(std::string file_in, std::string file_out)
     fs_out << (uint8_t)((original_file_size >> 32) & 0xFF);
     fs_out << (uint8_t)((original_file_size >> 24) & 0xFF);
     fs_out << (uint8_t)((original_file_size >> 16) & 0xFF);
-    fs_out << (uint8_t)((original_file_size >>  8) & 0xFF);
-    fs_out << (uint8_t)((original_file_size >>  0) & 0xFF);
+    fs_out << (uint8_t)((original_file_size >> 8) & 0xFF);
+    fs_out << (uint8_t)((original_file_size >> 0) & 0xFF);
 
     for (uint8_t i = 0; i <= number_of_symbols_with_codeword_length_highest; i++)
     {
@@ -295,7 +309,8 @@ void Huffman::compress(std::string file_in, std::string file_out)
             //For each byte in buffer, run through codebook
             for (uint16_t j = 0; j < codebook->size; j++)
             {
-                //If current byte from buffer matches this codebook record, write codeword to the output file
+                //If current byte from buffer matches this codebook record, write codeword to the
+                //output file
                 if (codebook->codes_value[j] == (uint8_t)buffer[i])
                 {
                     for (int8_t k = codebook->codes_length[j] - 1; k >= 0; k--)
@@ -338,7 +353,7 @@ void Huffman::decompress(std::string file_in, std::string file_out)
     uint32_t codeword = 0;
     uint8_t codeword_length = 0;
     uint64_t bytes_decompressed = 0;
-    while(fs_in.good())
+    while (fs_in.good())
     {
         fs_in.read(buffer, BUFFER_SIZE);
         int32_t bytes_read = fs_in.gcount();
@@ -352,7 +367,8 @@ void Huffman::decompress(std::string file_in, std::string file_out)
                 codeword_length++;
                 for (uint16_t k = 0; k < codebook->size; k++)
                 {
-                    if (codebook->codes[k] == codeword && codebook->codes_length[k] == codeword_length)
+                    if (codebook->codes[k] == codeword &&
+                        codebook->codes_length[k] == codeword_length)
                     {
                         fs_out << codebook->codes_value[k];
                         codeword = 0;

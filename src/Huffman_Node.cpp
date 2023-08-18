@@ -14,6 +14,8 @@ Huffman_Node::Huffman_Node(int32_t id, bool is_leaf_node)
 
 Huffman_Node::~Huffman_Node()
 {
-    if (this->left) delete this->left;
-    if (this->right) delete this->right;
+    if (this->left)
+        delete this->left;
+    if (this->right)
+        delete this->right;
 }

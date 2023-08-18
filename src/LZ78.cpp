@@ -18,7 +18,8 @@ void LZ78::compress_file(std::string file_in, std::string file_out)
     int8_t data_out_position = 7;
 
     //Read the first chunk of file
-    if (read_input_file(fs_in, BUFFER_SIZE - 1)) input_file_end_reached = true;
+    if (read_input_file(fs_in, BUFFER_SIZE - 1))
+        input_file_end_reached = true;
 
     while (buffer_bytes_available() > 0)
     {
@@ -65,7 +66,7 @@ void LZ78::compress_file(std::string file_in, std::string file_out)
     delete dictionary;
 }
 
-LZ78_Tuple* LZ78::build_tuple(LZ78_Node* current_node, bool *denormalized)
+LZ78_Tuple* LZ78::build_tuple(LZ78_Node* current_node, bool* denormalized)
 {
     //Denormalized tuple
     if (buffer_bytes_available() == 0)
@@ -105,7 +106,8 @@ void LZ78::decompress_file(std::string file_in, std::string file_out)
     bool input_file_end_reached = false;
 
     //Read the first chunk of file
-    if (read_input_file(fs_in, BUFFER_SIZE - 1)) input_file_end_reached = true;
+    if (read_input_file(fs_in, BUFFER_SIZE - 1))
+        input_file_end_reached = true;
 
     uint8_t buf = read_buffer();
     uint8_t bits_read = 0;
@@ -154,7 +156,8 @@ void LZ78::decompress_file(std::string file_in, std::string file_out)
 
         //Traverse dictionary depth-first, saving the path; append new node to found entry
         std::vector<uint8_t> path;
-        find_dictionary_entry(tuple->id, dictionary, &path)->leaves.push_back(new LZ78_Node(dictionary_index++, tuple->token));
+        find_dictionary_entry(tuple->id, dictionary, &path)
+            ->leaves.push_back(new LZ78_Node(dictionary_index++, tuple->token));
 
         //Append path and token to output
         for (uint64_t i = 0; i < path.size(); i++)
@@ -172,7 +175,7 @@ void LZ78::decompress_file(std::string file_in, std::string file_out)
     delete dictionary;
 }
 
-int32_t LZ78::read_input_file(std::ifstream &fs_in, uint32_t length)
+int32_t LZ78::read_input_file(std::ifstream& fs_in, uint32_t length)
 {
     //Case: reading to the middle of the buffer
     if (write_pointer + length < BUFFER_SIZE)
@@ -205,7 +208,8 @@ int32_t LZ78::read_input_file(std::ifstream &fs_in, uint32_t length)
         write_pointer += bytes_read;
         write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
 
-        if (write_pointer != 0) return bytes_read;
+        if (write_pointer != 0)
+            return bytes_read;
 
         fs_in.read(buffer, length - bytes_read);
 
@@ -227,10 +231,12 @@ char LZ78::read_buffer()
 uint32_t LZ78::buffer_bytes_available()
 {
     //Safe if (BUFFER_SIZE + write_pointer - read_pointer) < 2 * BUFFER_SIZE
-    return (BUFFER_SIZE + write_pointer - read_pointer) - ((BUFFER_SIZE + write_pointer - read_pointer) >= BUFFER_SIZE) * BUFFER_SIZE;
+    return (BUFFER_SIZE + write_pointer - read_pointer) -
+           ((BUFFER_SIZE + write_pointer - read_pointer) >= BUFFER_SIZE) * BUFFER_SIZE;
 }
 
-LZ78_Node* LZ78::find_dictionary_entry(uint32_t id, LZ78_Node* dictionary, std::vector<uint8_t>* path)
+LZ78_Node* LZ78::find_dictionary_entry(uint32_t id, LZ78_Node* dictionary,
+                                       std::vector<uint8_t>* path)
 {
     //Traverse dictionary depth-first, saving the path; return when id is found
     if (dictionary->id == id)
@@ -259,7 +265,8 @@ uint8_t LZ78::bits_per_dictionary_id()
     uint32_t index = dictionary_index;
     uint32_t result = 1;
 
-    while (index >>= 1) result++;
+    while (index >>= 1)
+        result++;
 
     return result;
 }

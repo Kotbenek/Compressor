@@ -12,8 +12,15 @@ class LZ78 : public CompressionAlgorithm
 public:
     /*
     File structure:
-    Compressed data consists of tuples:
-    [variable-width dictionary index][next token]
+
+    [tuples]:
+
+        [dictionary index]
+        (variable-width value)
+
+        [next token]
+        (8-bit value)
+
     If the last tuple is [variable-width dictionary index][EOF], it is trimmed
     to [variable-width dictionary index] - a denormalized tuple
     */
@@ -31,12 +38,13 @@ private:
 
     const uint32_t BUFFER_SIZE = 65536;
 
-    LZ78_Tuple* build_tuple(LZ78_Node* current_node, bool *denormalized);
-    int32_t read_input_file(std::ifstream &fs_in, uint32_t length);
+    LZ78_Tuple* build_tuple(LZ78_Node* current_node, bool* denormalized);
+    int32_t read_input_file(std::ifstream& fs_in, uint32_t length);
     char read_buffer();
     uint32_t buffer_bytes_available();
 
-    LZ78_Node* find_dictionary_entry(uint32_t id, LZ78_Node* dictionary, std::vector<uint8_t>* path);
+    LZ78_Node* find_dictionary_entry(uint32_t id, LZ78_Node* dictionary,
+                                     std::vector<uint8_t>* path);
 
     uint8_t bits_per_dictionary_id();
 };

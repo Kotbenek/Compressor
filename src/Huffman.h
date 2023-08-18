@@ -1,22 +1,32 @@
 #pragma once
 
 #include "CompressionAlgorithm.h"
-#include "Huffman_Node.h"
 #include "Huffman_Codebook.h"
+#include "Huffman_Node.h"
 
-#include <string>
 #include <cstdint>
+#include <string>
 
 class Huffman : public CompressionAlgorithm
 {
 public:
     /*
     File structure:
-    [size of dictionary - 1] (8-bit value)
-    [size of original file] (56-bit value)
-    [number of symbols with codeword length of 1...n] (multiple 8-bit values)
-    [codeword values sorted in increasing order by codeword length and then by codeword value] (multiple 8-bit values)
+
+    [size of dictionary - 1]
+    (8-bit value)
+
+    [size of original file]
+    (56-bit value)
+
+    [number of symbols with codeword length of 1...n]
+    (multiple 8-bit values)
+
+    [codeword values sorted in increasing order by codeword length and then by codeword value]
+    (multiple 8-bit values)
+
     [compressed data]
+    (multiple variable-width values)
     */
     void compress_file(std::string file_in, std::string file_out);
     void decompress_file(std::string file_in, std::string file_out);

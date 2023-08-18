@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Huffman_Node.h"
 #include "Huffman_Codebook.h"
+#include "Huffman_Node.h"
 
 #include <cstdint>
 

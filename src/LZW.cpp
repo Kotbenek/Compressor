@@ -3,8 +3,8 @@
 #include "LZW_Node.h"
 
 #include <fstream>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 void LZW::compress_file(std::string file_in, std::string file_out)
 {
@@ -18,13 +18,15 @@ void LZW::compress_file(std::string file_in, std::string file_out)
 
     //Initialize dictionary
     for (dictionary_index = 0; dictionary_index < 256; dictionary_index++)
-        dictionary.insert(std::pair<std::vector<uint8_t>, uint32_t>({(uint8_t)dictionary_index}, dictionary_index));
+        dictionary.insert(std::pair<std::vector<uint8_t>, uint32_t>({(uint8_t)dictionary_index},
+                                                                    dictionary_index));
 
     uint8_t data_out = 0;
     int8_t data_out_position = 7;
 
     //Read the first chunk of file
-    if (read_input_file(fs_in, BUFFER_SIZE - 1)) input_file_end_reached = true;
+    if (read_input_file(fs_in, BUFFER_SIZE - 1))
+        input_file_end_reached = true;
 
     while (buffer_bytes_available() > 0)
     {
@@ -45,7 +47,8 @@ void LZW::compress_file(std::string file_in, std::string file_out)
 
             current_data.push_back(read_buffer());
 
-            std::unordered_map<std::vector<uint8_t>, uint32_t, HashAlgorithm>::iterator it = dictionary.find(current_data);
+            std::unordered_map<std::vector<uint8_t>, uint32_t, HashAlgorithm>::iterator it =
+                dictionary.find(current_data);
             if (it != dictionary.end())
                 index = last_found_index = it->second;
         } while (index != -1);
@@ -74,7 +77,8 @@ void LZW::compress_file(std::string file_in, std::string file_out)
         }
 
         //Add new entry to dictionary
-        dictionary.insert(std::pair<std::vector<uint8_t>, uint32_t>(current_data, dictionary_index++));
+        dictionary.insert(
+            std::pair<std::vector<uint8_t>, uint32_t>(current_data, dictionary_index++));
 
         //Read next data chunk
         if (!input_file_end_reached)
@@ -106,7 +110,8 @@ void LZW::decompress_file(std::string file_in, std::string file_out)
     bool is_data_valid = true;
 
     //Read the first chunk of file
-    if (read_input_file(fs_in, BUFFER_SIZE - 1)) input_file_end_reached = true;
+    if (read_input_file(fs_in, BUFFER_SIZE - 1))
+        input_file_end_reached = true;
 
     uint8_t buf = read_buffer();
     uint8_t bits_read = 0;
@@ -159,7 +164,7 @@ void LZW::decompress_file(std::string file_in, std::string file_out)
     }
 }
 
-int32_t LZW::read_input_file(std::ifstream &fs_in, uint32_t length)
+int32_t LZW::read_input_file(std::ifstream& fs_in, uint32_t length)
 {
     //Case: reading to the middle of the buffer
     if (write_pointer + length < BUFFER_SIZE)
@@ -192,7 +197,8 @@ int32_t LZW::read_input_file(std::ifstream &fs_in, uint32_t length)
         write_pointer += bytes_read;
         write_pointer -= (write_pointer >= BUFFER_SIZE) * BUFFER_SIZE;
 
-        if (write_pointer != 0) return bytes_read;
+        if (write_pointer != 0)
+            return bytes_read;
 
         fs_in.read(buffer, length - bytes_read);
 
@@ -220,7 +226,8 @@ void LZW::unread_buffer()
 uint32_t LZW::buffer_bytes_available()
 {
     //Safe if (BUFFER_SIZE + write_pointer - read_pointer) < 2 * BUFFER_SIZE
-    return (BUFFER_SIZE + write_pointer - read_pointer) - ((BUFFER_SIZE + write_pointer - read_pointer) >= BUFFER_SIZE) * BUFFER_SIZE;
+    return (BUFFER_SIZE + write_pointer - read_pointer) -
+           ((BUFFER_SIZE + write_pointer - read_pointer) >= BUFFER_SIZE) * BUFFER_SIZE;
 }
 
 uint8_t LZW::bits_per_dictionary_id()
@@ -228,7 +235,8 @@ uint8_t LZW::bits_per_dictionary_id()
     uint32_t index = dictionary_index;
     uint32_t result = 1;
 
-    while (index >>= 1) result++;
+    while (index >>= 1)
+        result++;
 
     return result;
 }

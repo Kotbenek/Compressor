@@ -6,10 +6,10 @@
 #include "LZ78.h"
 #include "LZW.h"
 
-#include <string>
-#include <iostream>
 #include <cstring>
 #include <getopt.h>
+#include <iostream>
+#include <string>
 
 int main(int argc, char** argv)
 {
@@ -22,15 +22,14 @@ int main(int argc, char** argv)
 
     while (1)
     {
-        static struct option long_options[] =
-        {
+        static struct option long_options[] = {
             {"compress",   no_argument,       0, 'c'},
             {"decompress", no_argument,       0, 'd'},
             {"algorithm",  required_argument, 0, 'a'},
             {"input",      required_argument, 0, 'i'},
             {"output",     required_argument, 0, 'o'},
             {"help",       no_argument,       0, 'h'},
-            {0, 0, 0, 0}
+            {0,            0,                 0, 0  }
         };
 
         c = getopt_long(argc, argv, "cda:i:o:h", long_options, NULL);
