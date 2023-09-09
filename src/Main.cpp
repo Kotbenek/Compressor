@@ -49,6 +49,11 @@ int main(int argc, char** argv)
                 break;
             case 'a':
                 //Algorithm
+                if (algorithm)
+                {
+                    delete algorithm;
+                    algorithm = NULL;
+                }
                 if (strcmp(optarg, "huffman") == 0)
                 {
                     algorithm = new Huffman();
@@ -101,9 +106,11 @@ int main(int argc, char** argv)
                              "lz78     Lempel-Ziv 78\n"
                              "lzw      Lempel-Ziv-Welch\n"
                              "\n";
+                delete algorithm;
                 return 0;
             case '?':
                 //Unknown argument
+                delete algorithm;
                 return 1;
             default:
                 abort();
@@ -114,6 +121,7 @@ int main(int argc, char** argv)
     {
         //Missing operation
         std::cout << "Missing argument: (-c | --compress | -d | --decompress)\n";
+        delete algorithm;
         return 1;
     }
 
@@ -128,6 +136,7 @@ int main(int argc, char** argv)
     {
         //Missing input file
         std::cout << "Missing argument: (-i <file> | --input <file>)\n";
+        delete algorithm;
         return 1;
     }
 
@@ -135,6 +144,7 @@ int main(int argc, char** argv)
     {
         //Missing output file
         std::cout << "Missing argument: (-o <file> | --output <file>)\n";
+        delete algorithm;
         return 1;
     }
 
