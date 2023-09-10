@@ -1,5 +1,3 @@
-#include "Main.h"
-
 #include "CompressionAlgorithm.h"
 #include "Huffman.h"
 #include "LZ77.h"
