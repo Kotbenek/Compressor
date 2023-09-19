@@ -16,9 +16,7 @@ void LZ77::compress_file(std::string file_in, std::string file_out)
         input_file_end_reached = true;
 
     for (uint32_t i = 0; i < BUFFER_SIZE_DICTIONARY; i++)
-    {
         buffer[i] = buffer[BUFFER_SIZE_DICTIONARY];
-    }
 
     //Write triple - (distance, length, next_byte)
     //First triple is always (0, 0, buffer[read_pointer])
@@ -131,9 +129,7 @@ void LZ77::decompress_file(std::string file_in, std::string file_out)
 
     //Fill buffer
     for (uint32_t i = 0; i < BUFFER_SIZE_DICTIONARY; i++)
-    {
         buffer[i] = next_byte;
-    }
     write_pointer = BUFFER_SIZE_DICTIONARY;
 
     while (true)

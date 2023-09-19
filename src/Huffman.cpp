@@ -22,9 +22,7 @@ void Huffman::count_occurrences(std::string file)
         int32_t bytes_read = fs.gcount();
 
         for (int32_t i = 0; i < bytes_read; i++)
-        {
             nodes[(uint8_t)buffer[i]]->occurrences++;
-        }
     }
 
     delete[] buffer;
@@ -125,9 +123,7 @@ void Huffman::create_codebook()
         //Store the codeword in the codebook
         codebook->codes[i] = 0;
         for (uint8_t j = 31, k = 0; j > 31 - codeword_length; j--)
-        {
             codebook->codes[i] |= (((codeword & (1 << j)) >> j) << k++);
-        }
         codebook->codes_length[i] = codeword_length;
         codebook->codes_value[i] = nodes[i]->id;
     }
@@ -229,9 +225,7 @@ void Huffman::read_canonical_codebook(std::string file)
     fs.read(buffer, dictionary_size);
     compressed_data_starts_at += dictionary_size;
     for (uint16_t i = 0; i < dictionary_size; i++)
-    {
         codebook->codes_value[i] = buffer[i];
-    }
 
     delete[] buffer;
     delete[] number_of_symbols_with_codeword_length;
@@ -260,9 +254,7 @@ void Huffman::compress(std::string file_in, std::string file_out)
     for (uint8_t i = 0; i < 32; i++)
         number_of_symbols_with_codeword_length[i] = 0;
     for (uint16_t i = 0; i < codebook->size; i++)
-    {
         number_of_symbols_with_codeword_length[codebook->codes_length[i] - 1]++;
-    }
 
     uint8_t number_of_symbols_with_codeword_length_highest = 31;
     for (int8_t i = 31; i >= 0; i--)
@@ -286,14 +278,10 @@ void Huffman::compress(std::string file_in, std::string file_out)
     fs_out << (uint8_t)((original_file_size >> 0) & 0xFF);
 
     for (uint8_t i = 0; i <= number_of_symbols_with_codeword_length_highest; i++)
-    {
         fs_out << (number_of_symbols_with_codeword_length[i]);
-    }
 
     for (uint16_t i = 0; i < codebook->size; i++)
-    {
         fs_out << codebook->codes_value[i];
-    }
 
     //Compress the input file
     uint8_t data_out = 0;
@@ -331,9 +319,7 @@ void Huffman::compress(std::string file_in, std::string file_out)
 
     //If there is any leftover data, write it to the output file
     if (data_out_position != 7)
-    {
         fs_out << data_out;
-    }
 
     delete[] buffer;
     delete[] number_of_symbols_with_codeword_length;
@@ -409,9 +395,7 @@ Huffman::Huffman()
 {
     this->nodes = new Huffman_Node*[256];
     for (uint16_t i = 0; i < 256; i++)
-    {
         this->nodes[i] = new Huffman_Node(i, true);
-    }
     this->leaf_nodes = 0;
     this->compressed_data_starts_at = 0;
     this->original_file_size = 0;
