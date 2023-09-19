@@ -405,6 +405,9 @@ Huffman::Huffman()
 
 Huffman::~Huffman()
 {
+    for (uint16_t i = 0; i < 256; i++)
+        if (!nodes[i]->occurrences)
+            delete nodes[i];
     delete tree;
     delete[] nodes;
     delete codebook;
