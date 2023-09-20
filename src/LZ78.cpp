@@ -56,6 +56,8 @@ void LZ78::compress_file(std::string file_in, std::string file_out)
                 }
             }
         }
+
+        delete tuple;
     }
 
     //If there is any leftover data, write it to the output file
@@ -169,6 +171,8 @@ void LZ78::decompress_file(std::string file_in, std::string file_out)
         if (!input_file_end_reached)
             if (read_input_file(fs_in, BUFFER_SIZE - buffer_bytes_available() - 1))
                 input_file_end_reached = true;
+
+        delete tuple;
     }
 
     //Cleanup
