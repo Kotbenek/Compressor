@@ -162,6 +162,9 @@ void LZW::decompress_file(std::string file_in, std::string file_out)
             if (read_input_file(fs_in, BUFFER_SIZE - buffer_bytes_available() - 1))
                 input_file_end_reached = true;
     }
+
+    for (uint32_t i = 0; i < dictionary.size(); i++)
+        delete dictionary[i];
 }
 
 int32_t LZW::read_input_file(std::ifstream& fs_in, uint32_t length)
