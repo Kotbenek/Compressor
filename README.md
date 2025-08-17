@@ -1,3 +1,8 @@
+# Moved to Codeberg
+
+This repository was moved to Codeberg:
+https://codeberg.org/Kotbenek/Compressor
+
 # Compressor
 C++ file compression utility tool
 
